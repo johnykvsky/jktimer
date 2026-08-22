@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">JK Timer</string>
+    <string name="back">Wstecz</string>
+    <string name="cancel">Anuluj</string>
+    <string name="delete">Usuń</string>
+    <string name="save">Zapisz</string>
+    <string name="start">Start</string>
+    <string name="edit">Edytuj</string>
+    <string name="clone_action">Klonuj</string>
+    <string name="clone_copy_suffix">(Kopia)</string>
+    <string name="workout">Ćwiczenie</string>
+    <string name="rest">Odpoczynek</string>
+    <string name="simple">Prosty</string>
+    <string name="advanced">Zaawansowany</string>
+    <string name="seconds">Sekundy</string>
+    <string name="mute_sound">Wycisz dźwięk</string>
+    <string name="unmute_sound">Włącz dźwięk</string>
+    <string name="duplicate">Duplikuj</string>
+    <string name="move_up">Przesuń w górę</string>
+    <string name="move_down">Przesuń w dół</string>
+    <string name="notification_channel_name">Aktywny timer treningowy</string>
+    <string name="notification_channel_desc">Pokazuje odliczanie i postęp aktywnego treningu w powiadomieniu.</string>
+
+    <!-- Home Screen -->
+    <string name="home_title">Timer Treningowy</string>
+    <string name="quick_training">Szybki trening</string>
+    <string name="add_training">Dodaj trening</string>
+    <string name="saved_trainings">Zapisane treningi</string>
+    <string name="no_saved_trainings_title">Brak zapisanych treningów</string>
+    <string name="no_saved_trainings_desc">Zapisuj swoje proste i zaawansowane plany treningowe, aby uruchamiać je jednym dotknięciem.</string>
+    <string name="create_first_training">Stwórz swój pierwszy trening</string>
+    <string name="delete_training_title">Usuń trening</string>
+    <string name="delete_training_confirm">Usunąć %s?</string>
+    <string name="default_training">Trening przykładowy</string>
+
+    <!-- Form Screen -->
+    <string name="new_saved_training">Nowy zapisany trening</string>
+    <string name="edit_training">Edytuj trening</string>
+    <string name="temporary_training">Szybki trening</string>
+    <string name="simple_training">Trening prosty</string>
+    <string name="advanced_training">Trening zaawansowany</string>
+    <string name="total_training_time">Całkowity czas treningu</string>
+    <string name="advanced_sequence_duration">Czas trwania sekwencji</string>
+    <string name="training_name">Nazwa treningu</string>
+    <string name="name_required">Nazwa jest wymagana</string>
+    <string name="description_optional">Opis (opcjonalny)</string>
+    <string name="workout_time_seconds">Czas ćwiczenia (sekundy)</string>
+    <string name="rest_time_seconds">Czas odpoczynku (sekundy)</string>
+    <string name="repeats_sets">Liczba powtórzeń (serii)</string>
+    <string name="add_item">Dodaj element</string>
+    <string name="max_steps_reached">Osiągnięto maksymalny limit %d kroków.</string>
+    <string name="no_steps_title">Brak dodanych kroków</string>
+    <string name="no_steps_desc">Dotknij \'Dodaj element\' powyżej, aby dodać kroki do treningu (do %d kroków).</string>
+    <string name="training_steps_count">Kroki treningu (%1$d/%2$d)</string>
+    <string name="title_optional">Tytuł (opcjonalny)</string>
+    <string name="eg_pushups">np. Pompki</string>
+    <string name="eg_catch_breath">np. Złap oddech</string>
+    <string name="enter_value_range">Wprowadź wartość od %s</string>
+    <string name="summary_simple_format">%1$ds ćwiczenia • %2$ds odpoczynku • %3$d serii</string>
+    <string name="summary_advanced_format">%1$d kroków • %2$d ćw., %3$d odp.</string>
+
+    <!-- Active Timer Screen -->
+    <string name="phase_ready">Gotowy</string>
+    <string name="phase_get_ready">Przygotuj się</string>
+    <string name="phase_workout">Ćwiczenie</string>
+    <string name="phase_rest">Odpoczynek</string>
+    <string name="phase_finished">Koniec!</string>
+    <string name="phase_paused">Wstrzymano</string>
+    <string name="tap_to_pause">Dotknij koła, aby wstrzymać</string>
+    <string name="tap_to_resume">Dotknij koła, aby wznowić</string>
+    <string name="next_step_prefix">Następne: %s</string>
+    <string name="training_finish">Koniec treningu</string>
+    <string name="total_remaining_prefix">Pozostało łącznie: %s</string>
+    <string name="stop_training">Zakończ trening</string>
+    <string name="finish_and_exit">Zakończ i wyjdź</string>
+    <string name="stop_training_dialog_title">Przerwać trening?</string>
+    <string name="stop_training_dialog_desc">Czy na pewno chcesz przerwać i wyjść z bieżącego treningu?</string>
+    <string name="continue_training">Kontynuuj</string>
+    <string name="done_exclamation">BRAWO!</string>
+
+    <!-- Completion Messages -->
+    <string name="msg_great_workout">Świetny trening!</string>
+    <string name="msg_awesome_job">Świetna robota, dałeś czadu!</string>
+    <string name="msg_workout_completed">Trening ukończony. Dobra robota!</string>
+    <string name="msg_boom_intense">Mocny trening! Gratulacje!</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Ustawienia</string>
+    <string name="language_section">Język</string>
+    <string name="language_desc">Wybierz język aplikacji lub użyj ustawień systemowych.</string>
+    <string name="language_system">Systemowy (Domyślny)</string>
+    <string name="language_english">English</string>
+    <string name="language_polish">Polski</string>
+    <string name="appearance_section">Wygląd</string>
+    <string name="appearance_desc">Wybierz motyw jasny, ciemny lub systemowy.</string>
+    <string name="theme_system">Systemowy</string>
+    <string name="theme_light">Jasny</string>
+    <string name="theme_dark">Ciemny</string>
+    <string name="prep_time_section">Czas przygotowania</string>
+    <string name="prep_time_desc">Czas odliczania przed rozpoczęciem pierwszego ćwiczenia.</string>
+    <string name="prep_none">Brak (0s)</string>
+    <string name="sound_vibration_section">Dźwięki i wibracje</string>
+    <string name="sound_effects">Efekty dźwiękowe</string>
+    <string name="sound_effects_desc">Odtwarzaj dźwięki odliczania i zmian interwałów</string>
+    <string name="beep_volume">Głośność dźwięków</string>
+    <string name="test_sound">Testuj dźwięk</string>
+    <string name="haptic_feedback">Wibracje</string>
+    <string name="haptic_feedback_desc">Wibruj przy odliczaniu i zmianach interwałów</string>
+    <string name="test_vibration">Testuj wibracje</string>
+    <string name="workout_screen_section">Ekran treningu</string>
+    <string name="show_total_remaining">Pokaż łączny pozostały czas</string>
+    <string name="show_total_remaining_desc">Wyświetlaj pasek całkowitego odliczania podczas treningu</string>
+
+    <!-- About Section -->
+    <string name="about_section">O aplikacji</string>
+    <string name="app_description">Prosty timer do treningów interwałowych, HIIT, Tabaty i własnych planów ćwiczeń.</string>
+    <string name="app_version">Wersja %s</string>
+    <string name="app_author">Autor: %s</string>
+</resources>

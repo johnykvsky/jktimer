@@ -1,0 +1,64 @@
+package com.johnykvsky.jktimer.storage
+
+import android.content.Context
+import com.johnykvsky.jktimer.model.AppLanguage
+import com.johnykvsky.jktimer.model.AppSettings
+import com.johnykvsky.jktimer.ui.theme.ThemeMode
+
+class AppSettingsRepository(context: Context) {
+    private val preferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+    private val legacyThemePreferences = context.getSharedPreferences("theme_preferences", Context.MODE_PRIVATE)
+
+    fun load(): AppSettings {
+        val themeModeStr = preferences.getString(KEY_THEME_MODE, null)
+            ?: legacyThemePreferences.getString("theme_mode", null)
+
+        val themeMode = themeModeStr
+            ?.let { value -> ThemeMode.entries.firstOrNull { it.name == value } }
+            ?: ThemeMode.System
+
+        val languageStr = preferences.getString(KEY_LANGUAGE, null)
+        val language = languageStr
+            ?.let { value -> AppLanguage.entries.firstOrNull { it.name == value } }
+            ?: AppLanguage.System
+
+        val hapticEnabled = preferences.getBoolean(KEY_HAPTIC_FEEDBACK, false)
+        val prepSeconds = preferences.getInt(KEY_PREP_SECONDS, AppSettings.DEFAULT_PREP_SECONDS)
+        val soundEnabled = preferences.getBoolean(KEY_SOUND_ENABLED, true)
+        val soundVolume = preferences.getFloat(KEY_SOUND_VOLUME, 1.0f)
+        val showTotalRemainingTime = preferences.getBoolean(KEY_SHOW_TOTAL_REMAINING_TIME, true)
+
+        return AppSettings(
+            themeMode = themeMode,
+            language = language,
+            hapticFeedbackEnabled = hapticEnabled,
+            prepSeconds = prepSeconds,
+            soundEnabled = soundEnabled,
+            soundVolume = soundVolume,
+            showTotalRemainingTime = showTotalRemainingTime
+        )
+    }
+
+    fun save(settings: AppSettings) {
+        preferences.edit()
+            .putString(KEY_THEME_MODE, settings.themeMode.name)
+            .putString(KEY_LANGUAGE, settings.language.name)
+            .putBoolean(KEY_HAPTIC_FEEDBACK, settings.hapticFeedbackEnabled)
+            .putInt(KEY_PREP_SECONDS, settings.prepSeconds)
+            .putBoolean(KEY_SOUND_ENABLED, settings.soundEnabled)
+            .putFloat(KEY_SOUND_VOLUME, settings.soundVolume)
+            .putBoolean(KEY_SHOW_TOTAL_REMAINING_TIME, settings.showTotalRemainingTime)
+            .apply()
+    }
+
+    private companion object {
+        const val PREFERENCES_NAME = "app_settings"
+        const val KEY_THEME_MODE = "theme_mode"
+        const val KEY_LANGUAGE = "language"
+        const val KEY_HAPTIC_FEEDBACK = "haptic_feedback"
+        const val KEY_PREP_SECONDS = "prep_seconds"
+        const val KEY_SOUND_ENABLED = "sound_enabled"
+        const val KEY_SOUND_VOLUME = "sound_volume"
+        const val KEY_SHOW_TOTAL_REMAINING_TIME = "show_total_remaining_time"
+    }
+}
