@@ -101,6 +101,9 @@
     <string name="prep_time_section">Preparation Time</string>
     <string name="prep_time_desc">Countdown delay before the first workout interval starts.</string>
     <string name="prep_none">None (0s)</string>
+    <string name="time_interval_section">Time Interval</string>
+    <string name="time_interval_desc">Step value used when adding or subtracting time in workouts (1s–99s).</string>
+    <string name="time_interval_step_label">Time step</string>
     <string name="sound_vibration_section">Sound &amp; Vibration</string>
     <string name="sound_effects">Sound effects</string>
     <string name="sound_effects_desc">Play countdown and interval beeps</string>

@@ -154,6 +154,7 @@ fun TimerApp(viewModel: TimerViewModel) {
                 initialName = current.preset?.name.orEmpty(),
                 initialPlan = current.preset?.plan ?: TrainingPlan.Simple(TimerConfig(60, 30, 1)),
                 requireName = true,
+                timeInterval = settings.timeIntervalSeconds,
                 primaryAction = stringResource(R.string.save),
                 onBack = { viewModel.navigateBack() },
                 onDelete = if (current.preset != null) {
@@ -177,6 +178,7 @@ fun TimerApp(viewModel: TimerViewModel) {
                 initialPlan = TrainingPlan.Simple(TimerConfig(60, 30, 1)),
                 requireName = false,
                 showTypeSelector = false,
+                timeInterval = settings.timeIntervalSeconds,
                 primaryAction = stringResource(R.string.start),
                 onBack = { viewModel.navigateBack() },
                 onSubmit = { _, plan ->
@@ -484,6 +486,7 @@ private fun TimerFormScreen(
     initialPlan: TrainingPlan,
     requireName: Boolean,
     showTypeSelector: Boolean = true,
+    timeInterval: Int = AppSettings.DEFAULT_TIME_INTERVAL_SECONDS,
     primaryAction: String,
     onBack: () -> Unit,
     onDelete: (() -> Unit)? = null,
@@ -498,8 +501,8 @@ private fun TimerFormScreen(
 
     // Simple fields
     val initialSimpleConfig = (initialPlan as? TrainingPlan.Simple)?.config ?: TimerConfig(60, 30, 1)
-    var workoutSeconds by remember { mutableIntStateOf(initialSimpleConfig.workoutSeconds.coerceIn(5, TimerConfig.MAX_WORKOUT_SECONDS)) }
-    var restSeconds by remember { mutableIntStateOf(initialSimpleConfig.restSeconds.coerceIn(5, TimerConfig.MAX_REST_SECONDS)) }
+    var workoutSeconds by remember { mutableIntStateOf(initialSimpleConfig.workoutSeconds.coerceIn(1, TimerConfig.MAX_WORKOUT_SECONDS)) }
+    var restSeconds by remember { mutableIntStateOf(initialSimpleConfig.restSeconds.coerceIn(1, TimerConfig.MAX_REST_SECONDS)) }
     var repeats by remember { mutableIntStateOf(initialSimpleConfig.repeats.coerceIn(1, TimerConfig.MAX_REPEATS)) }
 
     // Advanced fields: start empty when creating a new routine from scratch
@@ -638,10 +641,10 @@ private fun TimerFormScreen(
                             modifier = Modifier.size(24.dp)
                         )
                     },
-                    onDecrement = { workoutSeconds = (workoutSeconds - 5).coerceAtLeast(5) },
-                    onIncrement = { workoutSeconds = (workoutSeconds + 5).coerceAtMost(TimerConfig.MAX_WORKOUT_SECONDS) },
-                    canDecrement = workoutSeconds > 5,
-                    canIncrement = workoutSeconds < TimerConfig.MAX_WORKOUT_SECONDS
+                    onDecrement = { workoutSeconds = (workoutSeconds - timeInterval).coerceAtLeast(1) },
+                    onIncrement = { workoutSeconds = (workoutSeconds + timeInterval).coerceAtMost(TimerConfig.MAX_WORKOUT_SECONDS) },
+                    canDecrement = workoutSeconds - timeInterval >= 1,
+                    canIncrement = workoutSeconds + timeInterval <= TimerConfig.MAX_WORKOUT_SECONDS
                 )
 
                 SimpleTimerStepperCard(
@@ -655,10 +658,10 @@ private fun TimerFormScreen(
                             modifier = Modifier.size(24.dp)
                         )
                     },
-                    onDecrement = { restSeconds = (restSeconds - 5).coerceAtLeast(5) },
-                    onIncrement = { restSeconds = (restSeconds + 5).coerceAtMost(TimerConfig.MAX_REST_SECONDS) },
-                    canDecrement = restSeconds > 5,
-                    canIncrement = restSeconds < TimerConfig.MAX_REST_SECONDS
+                    onDecrement = { restSeconds = (restSeconds - timeInterval).coerceAtLeast(1) },
+                    onIncrement = { restSeconds = (restSeconds + timeInterval).coerceAtMost(TimerConfig.MAX_REST_SECONDS) },
+                    canDecrement = restSeconds - timeInterval >= 1,
+                    canIncrement = restSeconds + timeInterval <= TimerConfig.MAX_REST_SECONDS
                 )
 
                 SimpleTimerStepperCard(
@@ -764,6 +767,7 @@ private fun TimerFormScreen(
                             step = step,
                             index = index,
                             totalSteps = advancedSteps.size,
+                            timeInterval = timeInterval,
                             onUpdate = { updated -> advancedSteps[index] = updated },
                             onMoveUp = {
                                 if (index > 0) {
@@ -924,6 +928,7 @@ private fun AdvancedStepCard(
     step: TimerStep,
     index: Int,
     totalSteps: Int,
+    timeInterval: Int = AppSettings.DEFAULT_TIME_INTERVAL_SECONDS,
     onUpdate: (TimerStep) -> Unit,
     onMoveUp: () -> Unit,
     onMoveDown: () -> Unit,
@@ -1029,10 +1034,10 @@ private fun AdvancedStepCard(
                     ) {
                         FilledTonalIconButton(
                             onClick = {
-                                val newDuration = (step.durationSeconds - 5).coerceAtLeast(5)
+                                val newDuration = (step.durationSeconds - timeInterval).coerceAtLeast(1)
                                 onUpdate(step.copy(durationSeconds = newDuration))
                             },
-                            enabled = step.durationSeconds > 5,
+                            enabled = step.durationSeconds - timeInterval >= 1,
                             modifier = Modifier.size(44.dp)
                         ) {
                             Icon(
@@ -1043,10 +1048,10 @@ private fun AdvancedStepCard(
                         }
                         FilledTonalIconButton(
                             onClick = {
-                                val newDuration = (step.durationSeconds + 5).coerceAtMost(TimerConfig.MAX_WORKOUT_SECONDS)
+                                val newDuration = (step.durationSeconds + timeInterval).coerceAtMost(TimerConfig.MAX_WORKOUT_SECONDS)
                                 onUpdate(step.copy(durationSeconds = newDuration))
                             },
-                            enabled = step.durationSeconds < TimerConfig.MAX_WORKOUT_SECONDS,
+                            enabled = step.durationSeconds + timeInterval <= TimerConfig.MAX_WORKOUT_SECONDS,
                             modifier = Modifier.size(44.dp)
                         ) {
                             Icon(
@@ -1783,6 +1788,42 @@ private fun SettingsScreen(
                         )
                     }
                 }
+            }
+
+            // Time Interval Selection
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = stringResource(R.string.time_interval_section),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = stringResource(R.string.time_interval_desc),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                SimpleTimerStepperCard(
+                    label = stringResource(R.string.time_interval_step_label),
+                    valueText = "${settings.timeIntervalSeconds}s",
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Timer,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    onDecrement = {
+                        val newVal = (settings.timeIntervalSeconds - 1).coerceAtLeast(AppSettings.MIN_TIME_INTERVAL_SECONDS)
+                        onSettingsChange(settings.copy(timeIntervalSeconds = newVal))
+                    },
+                    onIncrement = {
+                        val newVal = (settings.timeIntervalSeconds + 1).coerceAtMost(AppSettings.MAX_TIME_INTERVAL_SECONDS)
+                        onSettingsChange(settings.copy(timeIntervalSeconds = newVal))
+                    },
+                    canDecrement = settings.timeIntervalSeconds > AppSettings.MIN_TIME_INTERVAL_SECONDS,
+                    canIncrement = settings.timeIntervalSeconds < AppSettings.MAX_TIME_INTERVAL_SECONDS
+                )
             }
 
             // Audio & Haptic Feedback

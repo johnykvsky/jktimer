@@ -24,6 +24,8 @@ class AppSettingsRepository(context: Context) {
 
         val hapticEnabled = preferences.getBoolean(KEY_HAPTIC_FEEDBACK, false)
         val prepSeconds = preferences.getInt(KEY_PREP_SECONDS, AppSettings.DEFAULT_PREP_SECONDS)
+        val timeIntervalSeconds = preferences.getInt(KEY_TIME_INTERVAL_SECONDS, AppSettings.DEFAULT_TIME_INTERVAL_SECONDS)
+            .coerceIn(AppSettings.MIN_TIME_INTERVAL_SECONDS, AppSettings.MAX_TIME_INTERVAL_SECONDS)
         val soundEnabled = preferences.getBoolean(KEY_SOUND_ENABLED, true)
         val soundVolume = preferences.getFloat(KEY_SOUND_VOLUME, 1.0f)
         val showTotalRemainingTime = preferences.getBoolean(KEY_SHOW_TOTAL_REMAINING_TIME, true)
@@ -33,6 +35,7 @@ class AppSettingsRepository(context: Context) {
             language = language,
             hapticFeedbackEnabled = hapticEnabled,
             prepSeconds = prepSeconds,
+            timeIntervalSeconds = timeIntervalSeconds,
             soundEnabled = soundEnabled,
             soundVolume = soundVolume,
             showTotalRemainingTime = showTotalRemainingTime
@@ -45,6 +48,7 @@ class AppSettingsRepository(context: Context) {
             .putString(KEY_LANGUAGE, settings.language.name)
             .putBoolean(KEY_HAPTIC_FEEDBACK, settings.hapticFeedbackEnabled)
             .putInt(KEY_PREP_SECONDS, settings.prepSeconds)
+            .putInt(KEY_TIME_INTERVAL_SECONDS, settings.timeIntervalSeconds)
             .putBoolean(KEY_SOUND_ENABLED, settings.soundEnabled)
             .putFloat(KEY_SOUND_VOLUME, settings.soundVolume)
             .putBoolean(KEY_SHOW_TOTAL_REMAINING_TIME, settings.showTotalRemainingTime)
@@ -57,6 +61,7 @@ class AppSettingsRepository(context: Context) {
         const val KEY_LANGUAGE = "language"
         const val KEY_HAPTIC_FEEDBACK = "haptic_feedback"
         const val KEY_PREP_SECONDS = "prep_seconds"
+        const val KEY_TIME_INTERVAL_SECONDS = "time_interval_seconds"
         const val KEY_SOUND_ENABLED = "sound_enabled"
         const val KEY_SOUND_VOLUME = "sound_volume"
         const val KEY_SHOW_TOTAL_REMAINING_TIME = "show_total_remaining_time"

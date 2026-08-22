@@ -30,7 +30,7 @@
     <string name="add_training">Dodaj trening</string>
     <string name="saved_trainings">Zapisane treningi</string>
     <string name="no_saved_trainings_title">Brak zapisanych treningów</string>
-    <string name="no_saved_trainings_desc">Zapisuj swoje proste i zaawansowane plany treningowe, aby uruchamiać je jednym dotknięciem.</string>
+    <string name="no_saved_trainings_desc">Zapisuj swoje plany treningowe, aby uruchamiać je jednym dotknięciem.</string>
     <string name="create_first_training">Stwórz swój pierwszy trening</string>
     <string name="delete_training_title">Usuń trening</string>
     <string name="delete_training_confirm">Usunąć %s?</string>
@@ -102,6 +102,9 @@
     <string name="prep_time_section">Czas przygotowania</string>
     <string name="prep_time_desc">Czas odliczania przed rozpoczęciem pierwszego ćwiczenia.</string>
     <string name="prep_none">Brak (0s)</string>
+    <string name="time_interval_section">Krok zmiany czasu</string>
+    <string name="time_interval_desc">Wartość dodawana lub odejmowana przyciskami +/- podczas edycji treningu (1s–99s).</string>
+    <string name="time_interval_step_label">Krok czasu</string>
     <string name="sound_vibration_section">Dźwięki i wibracje</string>
     <string name="sound_effects">Efekty dźwiękowe</string>
     <string name="sound_effects_desc">Odtwarzaj dźwięki odliczania i zmian interwałów</string>
