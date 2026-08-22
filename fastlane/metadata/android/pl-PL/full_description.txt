@@ -1,0 +1,10 @@
+JK Timer to przejrzysty i w pełni konfigurowalny timer interwałowy dla systemu Android — stworzony do treningów HIIT, Tabata, treningu obwodowego, kalisteniki oraz boksu.
+
+Funkcje:
+• Tryb prosty i zaawansowany: Błyskawicznie konfiguruj klasyczne interwały lub twórz własne zaawansowane sekwencje (do 99 kroków) z indywidualnymi nazwami ćwiczeń (np. Pompki, Deska).
+• Czytelny interfejs: Duży animowany okrąg odliczania, zmienne kolory przy seriach ćwiczeń pod rząd, podgląd następnego ćwiczenia i wskaźnik rund.
+• Sygnały dźwiękowe i wibracje: Wyraźne sygnały dźwiękowe dla zmian interwałów, ostrzeżenie 10 sekund przed końcem oraz odliczanie 3-2-1 z osobną regulacją głośności.
+• Działanie w tle i na zablokowanym ekranie: Usługa powiadomień zapewnia płynne odliczanie przy wygaszonym ekranie lub w trakcie odtwarzania muzyki.
+• Wielojęzyczność: Pełne wsparcie dla języka polskiego i angielskiego z automatycznym wykrywaniem języka telefonu.
+• Tryb poziomy: Responsywny układ dwukolumnowy na tablety i szerokie ekrany.
+• 100% prywatności i brak reklam: Aplikacja działa całkowicie offline, nie wymaga uprawnień internetowych i nie zawiera modułów śledzących.

@@ -1,0 +1,6 @@
+Initial release of JK Timer:
+• Simple and advanced custom interval workout timer (up to 99 steps)
+• Foreground service for background and lock-screen countdown
+• Audio and vibration alerts with volume control
+• Full English and Polish localization
+• 100% offline and privacy-friendly

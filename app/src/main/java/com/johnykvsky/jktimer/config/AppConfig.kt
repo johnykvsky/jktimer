@@ -35,7 +35,7 @@ object AppConfig {
 
     object Metadata {
         const val appName = "JK Timer"
-        const val versionName = "1.0.0"
+        const val versionName = "0.0.1"
         const val author = "JK"
     }
 }
