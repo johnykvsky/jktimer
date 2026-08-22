@@ -19,6 +19,8 @@
     <string name="duplicate">Duplikuj</string>
     <string name="move_up">Przesuń w górę</string>
     <string name="move_down">Przesuń w dół</string>
+    <string name="increase">Zwiększ</string>
+    <string name="decrease">Zmniejsz</string>
     <string name="notification_channel_name">Aktywny timer treningowy</string>
     <string name="notification_channel_desc">Pokazuje odliczanie i postęp aktywnego treningu w powiadomieniu.</string>
 
@@ -35,7 +37,7 @@
     <string name="default_training">Trening przykładowy</string>
 
     <!-- Form Screen -->
-    <string name="new_saved_training">Nowy zapisany trening</string>
+    <string name="new_training">Nowy trening</string>
     <string name="edit_training">Edytuj trening</string>
     <string name="temporary_training">Szybki trening</string>
     <string name="simple_training">Trening prosty</string>

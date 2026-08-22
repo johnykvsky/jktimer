@@ -138,17 +138,6 @@ class TimerViewModel @JvmOverloads constructor(
         savePreset(existingId, name, description, TrainingPlan.Simple(config))
     }
 
-    fun duplicatePreset(preset: TimerPreset, copySuffix: String = "(Copy)") {
-        val newName = "${preset.name} $copySuffix"
-        val updated = presetRepository.savePreset(
-            existingId = null,
-            name = newName,
-            description = preset.description,
-            plan = preset.plan
-        )
-        _presets.value = updated
-    }
-
     fun deletePreset(id: Long) {
         val updated = presetRepository.deletePreset(id)
         _presets.value = updated

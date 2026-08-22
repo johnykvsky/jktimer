@@ -3,6 +3,7 @@ package com.johnykvsky.jktimer
 import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -28,6 +29,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        volumeControlStream = AudioManager.STREAM_MUSIC
         enableEdgeToEdge()
 
         setContent {

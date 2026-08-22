@@ -18,6 +18,8 @@
     <string name="duplicate">Duplicate</string>
     <string name="move_up">Move up</string>
     <string name="move_down">Move down</string>
+    <string name="increase">Increase</string>
+    <string name="decrease">Decrease</string>
     <string name="notification_channel_name">Active Workout Timer</string>
     <string name="notification_channel_desc">Shows live workout timer countdown and progress in notification bar.</string>
 
@@ -34,7 +36,7 @@
     <string name="default_training">Timer</string>
 
     <!-- Form Screen -->
-    <string name="new_saved_training">New saved timer</string>
+    <string name="new_training">New timer</string>
     <string name="edit_training">Edit timer</string>
     <string name="temporary_training">Quick workout</string>
     <string name="simple_training">Simple Training</string>

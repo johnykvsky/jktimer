@@ -14,7 +14,7 @@ class AndroidTimerSoundPlayer(context: Context) : TimerSoundPlayer {
     private val audioManager = appContext.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
 
     private val audioAttributes = AudioAttributes.Builder()
-        .setUsage(AudioAttributes.USAGE_ALARM)
+        .setUsage(AudioAttributes.USAGE_MEDIA)
         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
         .build()
 
@@ -91,7 +91,7 @@ class AndroidTimerSoundPlayer(context: Context) : TimerSoundPlayer {
                 @Suppress("DEPRECATION")
                 am.requestAudioFocus(
                     null,
-                    AudioManager.STREAM_ALARM,
+                    AudioManager.STREAM_MUSIC,
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK
                 )
             }

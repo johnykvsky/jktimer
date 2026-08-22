@@ -29,22 +29,20 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SkipNext
@@ -58,6 +56,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
@@ -81,6 +80,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -94,7 +94,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -119,7 +118,6 @@ fun TimerApp(viewModel: TimerViewModel) {
     val screen by viewModel.currentScreen.collectAsState()
     val activeTitle by viewModel.activeTitle.collectAsState()
     val timerState by viewModel.timerState.collectAsState()
-    val copySuffix = stringResource(R.string.clone_copy_suffix)
 
     when (val current = screen) {
         AppScreen.Home -> TimerHomeScreen(
@@ -132,9 +130,6 @@ fun TimerApp(viewModel: TimerViewModel) {
                 viewModel.startTimer(preset.plan, preset.name)
             },
             onEditPreset = { viewModel.navigateTo(AppScreen.EditPreset(it)) },
-            onDuplicatePreset = { preset ->
-                viewModel.duplicatePreset(preset, copySuffix)
-            },
             onDeletePreset = { preset ->
                 viewModel.deletePreset(preset.id)
             },
@@ -155,10 +150,9 @@ fun TimerApp(viewModel: TimerViewModel) {
         is AppScreen.EditPreset -> {
             BackHandler { viewModel.navigateBack() }
             TimerFormScreen(
-                title = if (current.preset == null) stringResource(R.string.new_saved_training) else stringResource(R.string.edit_training),
+                title = if (current.preset == null) stringResource(R.string.new_training) else stringResource(R.string.edit_training),
                 initialName = current.preset?.name.orEmpty(),
-                initialDescription = current.preset?.description.orEmpty(),
-                initialPlan = current.preset?.plan ?: TrainingPlan.Simple(TimerConfig(40, 20, 3)),
+                initialPlan = current.preset?.plan ?: TrainingPlan.Simple(TimerConfig(60, 30, 1)),
                 requireName = true,
                 primaryAction = stringResource(R.string.save),
                 onBack = { viewModel.navigateBack() },
@@ -168,8 +162,8 @@ fun TimerApp(viewModel: TimerViewModel) {
                         viewModel.navigateBack()
                     }
                 } else null,
-                onSubmit = { name, description, plan ->
-                    viewModel.savePreset(current.preset?.id, name.orEmpty(), description, plan)
+                onSubmit = { name, plan ->
+                    viewModel.savePreset(current.preset?.id, name.orEmpty(), "", plan)
                 }
             )
         }
@@ -180,12 +174,12 @@ fun TimerApp(viewModel: TimerViewModel) {
             TimerFormScreen(
                 title = tempWorkoutTitle,
                 initialName = "",
-                initialDescription = "",
-                initialPlan = TrainingPlan.Simple(TimerConfig(40, 20, 3)),
+                initialPlan = TrainingPlan.Simple(TimerConfig(60, 30, 1)),
                 requireName = false,
+                showTypeSelector = false,
                 primaryAction = stringResource(R.string.start),
                 onBack = { viewModel.navigateBack() },
-                onSubmit = { _, _, plan ->
+                onSubmit = { _, plan ->
                     viewModel.startTimer(plan, tempWorkoutTitle)
                 }
             )
@@ -216,7 +210,6 @@ private fun TimerHomeScreen(
     onTemporaryTimer: () -> Unit,
     onStartPreset: (TimerPreset) -> Unit,
     onEditPreset: (TimerPreset) -> Unit,
-    onDuplicatePreset: (TimerPreset) -> Unit,
     onDeletePreset: (TimerPreset) -> Unit,
     onOpenSettings: () -> Unit
 ) {
@@ -324,7 +317,6 @@ private fun TimerHomeScreen(
                             preset = preset,
                             onStart = { onStartPreset(preset) },
                             onEdit = { onEditPreset(preset) },
-                            onDuplicate = { onDuplicatePreset(preset) },
                             onDelete = { presetToDelete = preset }
                         )
                     }
@@ -362,7 +354,6 @@ private fun PresetCard(
     preset: TimerPreset,
     onStart: () -> Unit,
     onEdit: () -> Unit,
-    onDuplicate: () -> Unit,
     onDelete: () -> Unit
 ) {
     val plan = preset.plan
@@ -384,46 +375,38 @@ private fun PresetCard(
                 Text(
                     text = preset.name,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f)
+                    fontWeight = FontWeight.Bold
                 )
                 AssistChip(
-                    onClick = { },
+                    onClick = {},
                     label = {
                         Text(
-                            text = plan.formattedDuration(),
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.primary
+                            text = if (isAdvanced) stringResource(R.string.advanced) else stringResource(R.string.simple),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium
                         )
                     },
-                    leadingIcon = {
-                        Icon(
-                            Icons.Default.Timer,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    },
-                    colors = AssistChipDefaults.assistChipColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest)
+                    colors = AssistChipDefaults.assistChipColors(
+                        containerColor = if (isAdvanced) {
+                            MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)
+                        } else {
+                            MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
+                        }
+                    )
                 )
             }
 
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = if (isAdvanced) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.secondaryContainer
-                ) {
-                    Text(
-                        text = if (isAdvanced) stringResource(R.string.advanced) else stringResource(R.string.simple),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = if (isAdvanced) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-                    )
-                }
+                Text(
+                    text = plan.formattedDuration(),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
 
                 val summaryText = when (plan) {
                     is TrainingPlan.Simple -> stringResource(
@@ -446,7 +429,7 @@ private fun PresetCard(
 
                 Text(
                     text = summaryText,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -475,11 +458,6 @@ private fun PresetCard(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(stringResource(R.string.edit))
                 }
-                OutlinedButton(onClick = onDuplicate) {
-                    Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(stringResource(R.string.clone_action))
-                }
                 OutlinedButton(
                     onClick = onDelete,
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
@@ -503,36 +481,35 @@ private enum class FormTrainingType {
 private fun TimerFormScreen(
     title: String,
     initialName: String,
-    initialDescription: String,
     initialPlan: TrainingPlan,
     requireName: Boolean,
+    showTypeSelector: Boolean = true,
     primaryAction: String,
     onBack: () -> Unit,
     onDelete: (() -> Unit)? = null,
-    onSubmit: (String?, String, TrainingPlan) -> Unit
+    onSubmit: (String?, TrainingPlan) -> Unit
 ) {
     var trainingType by remember {
         mutableStateOf(if (initialPlan is TrainingPlan.Advanced) FormTrainingType.Advanced else FormTrainingType.Simple)
     }
 
     var name by remember { mutableStateOf(initialName) }
-    var description by remember { mutableStateOf(initialDescription) }
     var showDeleteConfirmation by remember { mutableStateOf(false) }
 
     // Simple fields
-    val initialSimpleConfig = (initialPlan as? TrainingPlan.Simple)?.config ?: TimerConfig(40, 20, 3)
-    var workoutSeconds by remember { mutableStateOf(initialSimpleConfig.workoutSeconds.toString()) }
-    var restSeconds by remember { mutableStateOf(initialSimpleConfig.restSeconds.toString()) }
-    var repeats by remember { mutableStateOf(initialSimpleConfig.repeats.toString()) }
+    val initialSimpleConfig = (initialPlan as? TrainingPlan.Simple)?.config ?: TimerConfig(60, 30, 1)
+    var workoutSeconds by remember { mutableIntStateOf(initialSimpleConfig.workoutSeconds.coerceIn(5, TimerConfig.MAX_WORKOUT_SECONDS)) }
+    var restSeconds by remember { mutableIntStateOf(initialSimpleConfig.restSeconds.coerceIn(5, TimerConfig.MAX_REST_SECONDS)) }
+    var repeats by remember { mutableIntStateOf(initialSimpleConfig.repeats.coerceIn(1, TimerConfig.MAX_REPEATS)) }
 
     // Advanced fields: start empty when creating a new routine from scratch
     val initialSteps = (initialPlan as? TrainingPlan.Advanced)?.steps ?: emptyList()
     val advancedSteps = remember { mutableStateListOf<TimerStep>().apply { addAll(initialSteps) } }
 
     val currentSimpleConfig = TimerConfig(
-        workoutSeconds = workoutSeconds.toIntOrNull() ?: 0,
-        restSeconds = restSeconds.toIntOrNull() ?: 0,
-        repeats = repeats.toIntOrNull() ?: 0
+        workoutSeconds = workoutSeconds,
+        restSeconds = restSeconds,
+        repeats = repeats
     )
 
     val currentPlan: TrainingPlan = if (trainingType == FormTrainingType.Simple) {
@@ -542,8 +519,7 @@ private fun TimerFormScreen(
     }
 
     val nameValid = !requireName || name.isNotBlank()
-    val descriptionValid = description.length <= AppConfig.Input.maxDescriptionLength
-    val formValid = nameValid && descriptionValid && currentPlan.isValid()
+    val formValid = nameValid && currentPlan.isValid()
 
     Scaffold(
         topBar = {
@@ -576,23 +552,25 @@ private fun TimerFormScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Segmented mode selector
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                SegmentedButton(
-                    selected = trainingType == FormTrainingType.Simple,
-                    onClick = { trainingType = FormTrainingType.Simple },
-                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                    icon = {}
-                ) {
-                    Text(stringResource(R.string.simple_training), fontWeight = FontWeight.SemiBold)
-                }
-                SegmentedButton(
-                    selected = trainingType == FormTrainingType.Advanced,
-                    onClick = { trainingType = FormTrainingType.Advanced },
-                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                    icon = {}
-                ) {
-                    Text(stringResource(R.string.advanced_training), fontWeight = FontWeight.SemiBold)
+            if (showTypeSelector) {
+                // Segmented mode selector
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    SegmentedButton(
+                        selected = trainingType == FormTrainingType.Simple,
+                        onClick = { trainingType = FormTrainingType.Simple },
+                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                        icon = {}
+                    ) {
+                        Text(stringResource(R.string.simple_training), fontWeight = FontWeight.SemiBold)
+                    }
+                    SegmentedButton(
+                        selected = trainingType == FormTrainingType.Advanced,
+                        onClick = { trainingType = FormTrainingType.Advanced },
+                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                        icon = {}
+                    ) {
+                        Text(stringResource(R.string.advanced_training), fontWeight = FontWeight.SemiBold)
+                    }
                 }
             }
 
@@ -625,32 +603,6 @@ private fun TimerFormScreen(
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
-                    if (currentPlan.isValid()) {
-                        val summaryText = when (currentPlan) {
-                            is TrainingPlan.Simple -> stringResource(
-                                R.string.summary_simple_format,
-                                currentPlan.config.workoutSeconds,
-                                currentPlan.config.restSeconds,
-                                currentPlan.config.repeats
-                            )
-                            is TrainingPlan.Advanced -> {
-                                val workouts = currentPlan.steps.count { it.type == StepType.Workout }
-                                val rests = currentPlan.steps.count { it.type == StepType.Rest }
-                                stringResource(
-                                    R.string.summary_advanced_format,
-                                    currentPlan.steps.size,
-                                    workouts,
-                                    rests
-                                )
-                            }
-                        }
-                        Text(
-                            text = summaryText,
-                            style = MaterialTheme.typography.bodySmall,
-                            textAlign = TextAlign.End,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
                 }
             }
 
@@ -673,99 +625,58 @@ private fun TimerFormScreen(
                 )
             }
 
-            OutlinedTextField(
-                value = description,
-                onValueChange = {
-                    description = it.take(AppConfig.Input.maxDescriptionLength)
-                },
-                label = { Text(stringResource(R.string.description_optional)) },
-                leadingIcon = { Icon(Icons.AutoMirrored.Filled.Notes, contentDescription = null) },
-                minLines = 2,
-                supportingText = {
-                    Text("${description.length}/${AppConfig.Input.maxDescriptionLength}")
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-
             if (trainingType == FormTrainingType.Simple) {
-                // SIMPLE TRAINING FORM
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    NumberField(
-                        value = workoutSeconds,
-                        onValueChange = { workoutSeconds = it },
-                        label = stringResource(R.string.workout_time_seconds),
-                        leadingIcon = { Icon(Icons.Default.Timer, contentDescription = null) },
-                        validRange = "1-${TimerConfig.MAX_WORKOUT_SECONDS}",
-                        isValid = currentSimpleConfig.workoutSeconds in 1..TimerConfig.MAX_WORKOUT_SECONDS
-                    )
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(start = 4.dp)
-                    ) {
-                        listOf(-5, 5, 10, 30).forEach { delta ->
-                            AssistChip(
-                                onClick = {
-                                    val currentVal = workoutSeconds.toIntOrNull() ?: 0
-                                    val newVal = (currentVal + delta).coerceIn(1, TimerConfig.MAX_WORKOUT_SECONDS)
-                                    workoutSeconds = newVal.toString()
-                                },
-                                label = { Text(if (delta > 0) "+${delta}s" else "${delta}s") }
-                            )
-                        }
-                    }
-                }
+                // SIMPLE TRAINING FORM: Stepper Controls (No manual text fields)
+                SimpleTimerStepperCard(
+                    label = stringResource(R.string.workout),
+                    valueText = "${workoutSeconds}s",
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Timer,
+                            contentDescription = null,
+                            tint = AppConfig.TimerScreen.workoutColorPrimary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    onDecrement = { workoutSeconds = (workoutSeconds - 5).coerceAtLeast(5) },
+                    onIncrement = { workoutSeconds = (workoutSeconds + 5).coerceAtMost(TimerConfig.MAX_WORKOUT_SECONDS) },
+                    canDecrement = workoutSeconds > 5,
+                    canIncrement = workoutSeconds < TimerConfig.MAX_WORKOUT_SECONDS
+                )
 
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    NumberField(
-                        value = restSeconds,
-                        onValueChange = { restSeconds = it },
-                        label = stringResource(R.string.rest_time_seconds),
-                        leadingIcon = { Icon(Icons.Default.HourglassEmpty, contentDescription = null) },
-                        validRange = "1-${TimerConfig.MAX_REST_SECONDS}",
-                        isValid = currentSimpleConfig.restSeconds in 1..TimerConfig.MAX_REST_SECONDS
-                    )
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(start = 4.dp)
-                    ) {
-                        listOf(-5, 5, 10, 30, 60).forEach { delta ->
-                            AssistChip(
-                                onClick = {
-                                    val currentVal = restSeconds.toIntOrNull() ?: 1
-                                    val newVal = (currentVal + delta).coerceIn(1, TimerConfig.MAX_REST_SECONDS)
-                                    restSeconds = newVal.toString()
-                                },
-                                label = { Text(if (delta > 0) "+${delta}s" else "${delta}s") }
-                            )
-                        }
-                    }
-                }
+                SimpleTimerStepperCard(
+                    label = stringResource(R.string.rest),
+                    valueText = "${restSeconds}s",
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.HourglassEmpty,
+                            contentDescription = null,
+                            tint = AppConfig.TimerScreen.restColor,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    onDecrement = { restSeconds = (restSeconds - 5).coerceAtLeast(5) },
+                    onIncrement = { restSeconds = (restSeconds + 5).coerceAtMost(TimerConfig.MAX_REST_SECONDS) },
+                    canDecrement = restSeconds > 5,
+                    canIncrement = restSeconds < TimerConfig.MAX_REST_SECONDS
+                )
 
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    NumberField(
-                        value = repeats,
-                        onValueChange = { repeats = it },
-                        label = stringResource(R.string.repeats_sets),
-                        leadingIcon = { Icon(Icons.Default.Repeat, contentDescription = null) },
-                        validRange = "1-${TimerConfig.MAX_REPEATS}",
-                        isValid = currentSimpleConfig.repeats in 1..TimerConfig.MAX_REPEATS
-                    )
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(start = 4.dp)
-                    ) {
-                        listOf(-1, 1, 3, 5, 10).forEach { delta ->
-                            AssistChip(
-                                onClick = {
-                                    val currentVal = repeats.toIntOrNull() ?: 1
-                                    val newVal = (currentVal + delta).coerceIn(1, TimerConfig.MAX_REPEATS)
-                                    repeats = newVal.toString()
-                                },
-                                label = { Text(if (delta > 0) "+${delta}" else "$delta") }
-                            )
-                        }
-                    }
-                }
+                SimpleTimerStepperCard(
+                    label = stringResource(R.string.repeats_sets),
+                    valueText = "$repeats",
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Repeat,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    onDecrement = { repeats = (repeats - 1).coerceAtLeast(1) },
+                    onIncrement = { repeats = (repeats + 1).coerceAtMost(TimerConfig.MAX_REPEATS) },
+                    canDecrement = repeats > 1,
+                    canIncrement = repeats < TimerConfig.MAX_REPEATS
+                )
             } else {
                 // ADVANCED TRAINING FORM: Single "Add item" button directly below Name/Description
                 Button(
@@ -862,16 +773,8 @@ private fun TimerFormScreen(
                             },
                             onMoveDown = {
                                 if (index < advancedSteps.size - 1) {
-                                    val item = advancedSteps.removeAt(index)
-                                    advancedSteps.add(index + 1, item)
-                                }
-                            },
-                            onDuplicate = {
-                                if (advancedSteps.size < TrainingPlan.MAX_ADVANCED_STEPS) {
-                                    advancedSteps.add(
-                                        index + 1,
-                                        step.copy(id = UUID.randomUUID().toString())
-                                    )
+                                    val currentStep = advancedSteps.removeAt(index)
+                                    advancedSteps.add(index + 1, currentStep)
                                 }
                             },
                             onDelete = {
@@ -900,7 +803,7 @@ private fun TimerFormScreen(
                     }
                 }
                 Button(
-                    onClick = { onSubmit(name.takeIf { requireName }, description, currentPlan) },
+                    onClick = { onSubmit(name.takeIf { requireName }, currentPlan) },
                     enabled = formValid,
                     modifier = Modifier.weight(if (onDelete != null) 1.5f else 1f)
                 ) {
@@ -934,7 +837,88 @@ private fun TimerFormScreen(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun SimpleTimerStepperCard(
+    label: String,
+    valueText: String,
+    leadingIcon: @Composable () -> Unit,
+    onDecrement: () -> Unit,
+    onIncrement: () -> Unit,
+    canDecrement: Boolean,
+    canIncrement: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    modifier = Modifier.size(44.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        leadingIcon()
+                    }
+                }
+                Column(verticalArrangement = Arrangement.Center) {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = valueText,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                FilledTonalIconButton(
+                    onClick = onDecrement,
+                    enabled = canDecrement,
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Remove,
+                        contentDescription = stringResource(R.string.decrease),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                FilledTonalIconButton(
+                    onClick = onIncrement,
+                    enabled = canIncrement,
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = stringResource(R.string.increase),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun AdvancedStepCard(
     step: TimerStep,
@@ -943,12 +927,10 @@ private fun AdvancedStepCard(
     onUpdate: (TimerStep) -> Unit,
     onMoveUp: () -> Unit,
     onMoveDown: () -> Unit,
-    onDuplicate: () -> Unit,
     onDelete: () -> Unit
 ) {
     val isWorkout = step.type == StepType.Workout
     val typeColor = if (isWorkout) AppConfig.TimerScreen.workoutColorPrimary else AppConfig.TimerScreen.restColor
-    val durationValid = step.durationSeconds in 1..TimerConfig.MAX_WORKOUT_SECONDS
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -1008,89 +990,88 @@ private fun AdvancedStepCard(
                     IconButton(onClick = onMoveDown, enabled = index < totalSteps - 1, modifier = Modifier.size(32.dp)) {
                         Icon(Icons.Default.ArrowDownward, contentDescription = stringResource(R.string.move_down), modifier = Modifier.size(18.dp))
                     }
-                    IconButton(onClick = onDuplicate, enabled = totalSteps < TrainingPlan.MAX_ADVANCED_STEPS, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Default.ContentCopy, contentDescription = stringResource(R.string.duplicate), modifier = Modifier.size(18.dp))
-                    }
                     IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
                         Icon(Icons.Default.DeleteOutline, contentDescription = stringResource(R.string.delete), modifier = Modifier.size(18.dp))
                     }
                 }
             }
 
-            // Duration input and quick chips
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically
+            // Stepper for step duration (large number on left, big - / + buttons on right)
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                OutlinedTextField(
-                    value = if (step.durationSeconds > 0) step.durationSeconds.toString() else "",
-                    onValueChange = { input ->
-                        val parsed = input.filter { it.isDigit() }.take(4).toIntOrNull() ?: 0
-                        onUpdate(step.copy(durationSeconds = parsed))
-                    },
-                    label = { Text(stringResource(R.string.seconds)) },
-                    isError = !durationValid,
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.width(115.dp)
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 14.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text(
+                            text = if (isWorkout) stringResource(R.string.workout) else stringResource(R.string.rest),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "${step.durationSeconds}s",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = typeColor
+                        )
+                    }
 
-                OutlinedTextField(
-                    value = step.name,
-                    onValueChange = { onUpdate(step.copy(name = it.take(50))) },
-                    label = { Text(stringResource(R.string.title_optional)) },
-                    singleLine = true,
-                    placeholder = {
-                        Text(if (isWorkout) stringResource(R.string.eg_pushups) else stringResource(R.string.eg_catch_breath))
-                    },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                listOf(-5, 5, 10, 30, 60).forEach { delta ->
-                    AssistChip(
-                        onClick = {
-                            val newDuration = (step.durationSeconds + delta).coerceIn(1, TimerConfig.MAX_WORKOUT_SECONDS)
-                            onUpdate(step.copy(durationSeconds = newDuration))
-                        },
-                        label = { Text(if (delta > 0) "+${delta}s" else "${delta}s", fontSize = 12.sp) }
-                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        FilledTonalIconButton(
+                            onClick = {
+                                val newDuration = (step.durationSeconds - 5).coerceAtLeast(5)
+                                onUpdate(step.copy(durationSeconds = newDuration))
+                            },
+                            enabled = step.durationSeconds > 5,
+                            modifier = Modifier.size(44.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Remove,
+                                contentDescription = stringResource(R.string.decrease),
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                        FilledTonalIconButton(
+                            onClick = {
+                                val newDuration = (step.durationSeconds + 5).coerceAtMost(TimerConfig.MAX_WORKOUT_SECONDS)
+                                onUpdate(step.copy(durationSeconds = newDuration))
+                            },
+                            enabled = step.durationSeconds < TimerConfig.MAX_WORKOUT_SECONDS,
+                            modifier = Modifier.size(44.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Add,
+                                contentDescription = stringResource(R.string.increase),
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                    }
                 }
             }
+
+            // Optional Step title input
+            OutlinedTextField(
+                value = step.name,
+                onValueChange = { onUpdate(step.copy(name = it.take(50))) },
+                label = { Text(stringResource(R.string.title_optional)) },
+                singleLine = true,
+                placeholder = {
+                    Text(if (isWorkout) stringResource(R.string.eg_pushups) else stringResource(R.string.eg_catch_breath))
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
-}
-
-@Composable
-private fun NumberField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    validRange: String,
-    maxDigits: Int = 4,
-    isValid: Boolean
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = { input ->
-            onValueChange(input.filter { it.isDigit() }.take(maxDigits))
-        },
-        label = { Text(label) },
-        leadingIcon = leadingIcon,
-        singleLine = true,
-        isError = value.isNotEmpty() && !isValid,
-        supportingText = {
-            Text(if (value.isNotEmpty() && !isValid) stringResource(R.string.enter_value_range, validRange) else validRange)
-        },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        modifier = Modifier.fillMaxWidth()
-    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -2068,7 +2049,6 @@ private fun TimerHomeScreenPreview() {
             onTemporaryTimer = {},
             onStartPreset = {},
             onEditPreset = {},
-            onDuplicatePreset = {},
             onDeletePreset = {},
             onOpenSettings = {}
         )
