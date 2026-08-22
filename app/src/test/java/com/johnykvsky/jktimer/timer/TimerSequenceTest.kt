@@ -246,7 +246,7 @@ class TimerSequenceTest {
         )
         val advTicks = TimerSequence.build(com.johnykvsky.jktimer.model.TrainingPlan.Advanced(advancedSteps), prepSeconds = 3)
         assertEquals("Workout (10s) • Pushups", advTicks.first { it.phase == TimerPhase.Starting }.nextStepLabel)
-        assertEquals("Rest (5s) • Rest", advTicks.first { it.phase == TimerPhase.Workout && it.stepLabel == "Pushups" }.nextStepLabel)
+        assertEquals("Rest (5s)", advTicks.first { it.phase == TimerPhase.Workout && it.stepLabel == "Pushups" }.nextStepLabel)
         assertEquals("Workout (20s) • Plank", advTicks.first { it.phase == TimerPhase.Rest }.nextStepLabel)
         assertEquals("Training Finish", advTicks.first { it.phase == TimerPhase.Workout && it.stepLabel == "Plank" }.nextStepLabel)
     }

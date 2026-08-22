@@ -103,7 +103,7 @@ class TimerPresetRepository(private val context: Context) {
                                 put("id", step.id)
                                 put("type", if (step.type == StepType.Workout) "workout" else "rest")
                                 put("durationSeconds", step.durationSeconds)
-                                put("name", step.name)
+                                put("name", if (step.type == StepType.Workout) step.name else "")
                             }
                             stepsArray.put(stepObj)
                         }
@@ -138,7 +138,7 @@ class TimerPresetRepository(private val context: Context) {
                         val stepTypeStr = stepObj.optString("type", "workout")
                         val stepType = if (stepTypeStr.equals("rest", ignoreCase = true)) StepType.Rest else StepType.Workout
                         val duration = stepObj.optInt("durationSeconds", stepObj.optInt("duration", 30))
-                        val stepName = stepObj.optString("name", "")
+                        val stepName = if (stepType == StepType.Workout) stepObj.optString("name", "") else ""
                         val stepId = stepObj.optString("id", UUID.randomUUID().toString())
                         stepsList.add(
                             TimerStep(

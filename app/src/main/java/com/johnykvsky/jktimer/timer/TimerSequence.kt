@@ -142,7 +142,11 @@ object TimerSequence {
 
         if (prepSeconds > 0) {
             val first = steps.first()
-            val nextLabel = "${first.type.name} (${first.durationSeconds}s)${if (first.name.isNotBlank()) " • " + first.name else ""}"
+            val nextLabel = if (first.type == StepType.Rest) {
+                "Rest (${first.durationSeconds}s)"
+            } else {
+                "${first.type.name} (${first.durationSeconds}s)${if (first.name.isNotBlank()) " • " + first.name else ""}"
+            }
             for (second in prepSeconds downTo 1) {
                 val events = if (second in 1..3) {
                     listOf(TimerSoundEvent.Countdown)
@@ -172,7 +176,11 @@ object TimerSequence {
             val futureDurationAfterThisStep = steps.drop(stepIndex + 1).sumOf { it.durationSeconds }
             val nextStep = if (stepIndex + 1 < steps.size) steps[stepIndex + 1] else null
             val nextStepLabel = if (nextStep != null) {
-                "${nextStep.type.name} (${nextStep.durationSeconds}s)${if (nextStep.name.isNotBlank()) " • " + nextStep.name else ""}"
+                if (nextStep.type == StepType.Rest) {
+                    "Rest (${nextStep.durationSeconds}s)"
+                } else {
+                    "${nextStep.type.name} (${nextStep.durationSeconds}s)${if (nextStep.name.isNotBlank()) " • " + nextStep.name else ""}"
+                }
             } else {
                 "Training Finish"
             }
@@ -238,7 +246,7 @@ object TimerSequence {
                             totalWorkouts = totalWorkouts,
                             totalRemainingSeconds = remaining + futureDurationAfterThisStep,
                             workoutColorIndex = 0,
-                            stepLabel = step.name,
+                            stepLabel = "",
                             nextStepLabel = nextStepLabel,
                             soundEvents = events
                         )
@@ -253,7 +261,7 @@ object TimerSequence {
                             totalWorkouts = totalWorkouts,
                             totalRemainingSeconds = 0,
                             workoutColorIndex = 0,
-                            stepLabel = step.name,
+                            stepLabel = "",
                             nextStepLabel = nextStepLabel,
                             soundEvents = listOf(TimerSoundEvent.TrainingFinish)
                         )

@@ -36,6 +36,7 @@
     <string name="delete_training_confirm">Usunąć %s?</string>
     <string name="default_training">Trening przykładowy</string>
     <string name="training_summary_title">Podsumowanie treningu</string>
+    <string name="summary_time_prefix">czas</string>
     <string name="total_time_label">Całkowity czas</string>
     <string name="sets_label">Serie</string>
     <string name="copy_to_clipboard">Kopiuj do schowka</string>

@@ -70,18 +70,18 @@ class TimerPlanTest {
         val plan = TrainingPlan.Advanced(steps)
         val summary = plan.generateShareableSummary(
             title = "Upper Body Routine",
-            totalTimeLabel = "Total time",
+            timePrefix = "time",
             workoutLabel = "Workout",
             restLabel = "Rest",
             setsLabel = "Sets"
         )
 
         val expected = """
-            Upper Body Routine
-            Total time: 1m 30s
-            1. Workout - Pushups (30s)
+            Upper Body Routine (time: 1m 30s)
+
+            1. Pushups (30s)
             2. Rest (15s)
-            3. Workout - Plank (45s)
+            3. Plank (45s)
         """.trimIndent()
 
         assertEquals(expected, summary)
@@ -93,15 +93,15 @@ class TimerPlanTest {
         val plan = TrainingPlan.Simple(config)
         val summary = plan.generateShareableSummary(
             title = "Full Body Tabata",
-            totalTimeLabel = "Total time",
+            timePrefix = "time",
             workoutLabel = "Workout",
             restLabel = "Rest",
             setsLabel = "Sets"
         )
 
         val expected = """
-            Full Body Tabata
-            Total time: 3m 50s
+            Full Body Tabata (time: 3m 50s)
+
             Workout: 20s
             Rest: 10s
             Sets: 8
@@ -119,16 +119,16 @@ class TimerPlanTest {
         val plan = TrainingPlan.Advanced(steps)
         val summary = plan.generateShareableSummary(
             title = "Mój Trening",
-            totalTimeLabel = "Całkowity czas",
+            timePrefix = "czas",
             workoutLabel = "Ćwiczenie",
             restLabel = "Odpoczynek",
             setsLabel = "Serie"
         )
 
         val expected = """
-            Mój Trening
-            Całkowity czas: 30s
-            1. Ćwiczenie - Pompki (20s)
+            Mój Trening (czas: 30s)
+
+            1. Pompki (20s)
             2. Odpoczynek (10s)
         """.trimIndent()
 

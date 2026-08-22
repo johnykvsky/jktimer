@@ -35,6 +35,7 @@
     <string name="delete_training_confirm">Delete %s?</string>
     <string name="default_training">Timer</string>
     <string name="training_summary_title">Training Summary</string>
+    <string name="summary_time_prefix">time</string>
     <string name="total_time_label">Total time</string>
     <string name="sets_label">Sets</string>
     <string name="copy_to_clipboard">Copy to clipboard</string>

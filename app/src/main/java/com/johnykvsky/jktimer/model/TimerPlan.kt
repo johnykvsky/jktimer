@@ -48,7 +48,7 @@ sealed interface TrainingPlan {
 
     fun generateShareableSummary(
         title: String,
-        totalTimeLabel: String = "Total time",
+        timePrefix: String = "time",
         workoutLabel: String = "Workout",
         restLabel: String = "Rest",
         setsLabel: String = "Sets"
@@ -56,18 +56,24 @@ sealed interface TrainingPlan {
         is Simple -> {
             val name = title.ifBlank { "Workout Timer" }
             val duration = formattedDuration()
-            "$name\n$totalTimeLabel: $duration\n$workoutLabel: ${config.workoutSeconds}s\n$restLabel: ${config.restSeconds}s\n$setsLabel: ${config.repeats}"
+            val timeHeader = if (timePrefix.isNotBlank()) "$timePrefix: $duration" else duration
+            "$name ($timeHeader)\n\n$workoutLabel: ${config.workoutSeconds}s\n$restLabel: ${config.restSeconds}s\n$setsLabel: ${config.repeats}"
         }
         is Advanced -> {
+            val name = title.ifBlank { "Advanced Training" }
+            val duration = formattedDuration()
+            val timeHeader = if (timePrefix.isNotBlank()) "$timePrefix: $duration" else duration
             val sb = StringBuilder()
-            sb.append(title.ifBlank { "Advanced Training" }).append("\n")
-            sb.append("$totalTimeLabel: ${formattedDuration()}\n")
+            sb.append("$name ($timeHeader)\n\n")
             steps.forEachIndexed { index, step ->
-                val typeStr = if (step.type == StepType.Workout) workoutLabel else restLabel
-                val line = if (step.name.isNotBlank()) {
-                    "${index + 1}. $typeStr - ${step.name} (${step.durationSeconds}s)"
-                } else {
-                    "${index + 1}. $typeStr (${step.durationSeconds}s)"
+                val line = when (step.type) {
+                    StepType.Workout -> {
+                        val stepName = step.name.trim().ifBlank { workoutLabel }
+                        "${index + 1}. $stepName (${step.durationSeconds}s)"
+                    }
+                    StepType.Rest -> {
+                        "${index + 1}. $restLabel (${step.durationSeconds}s)"
+                    }
                 }
                 sb.append(line).append("\n")
             }

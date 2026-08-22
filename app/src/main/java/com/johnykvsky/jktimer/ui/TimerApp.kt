@@ -502,14 +502,14 @@ private fun TrainingSummaryDialog(
     val isAdvanced = plan is TrainingPlan.Advanced
     val context = LocalContext.current
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val totalTimeLabel = stringResource(R.string.total_time_label)
+    val timePrefix = stringResource(R.string.summary_time_prefix)
     val workoutLabel = stringResource(R.string.workout)
     val restLabel = stringResource(R.string.rest)
     val setsLabel = stringResource(R.string.sets_label)
-    val summaryText = remember(preset, plan, totalTimeLabel, workoutLabel, restLabel, setsLabel) {
+    val summaryText = remember(preset, plan, timePrefix, workoutLabel, restLabel, setsLabel) {
         plan.generateShareableSummary(
             title = preset.name,
-            totalTimeLabel = totalTimeLabel,
+            timePrefix = timePrefix,
             workoutLabel = workoutLabel,
             restLabel = restLabel,
             setsLabel = setsLabel
@@ -583,23 +583,6 @@ private fun TrainingSummaryDialog(
             }
         },
         confirmButton = {
-            Button(
-                onClick = { copyToClipboard() },
-                modifier = if (isLandscape) Modifier.height(36.dp) else Modifier
-            ) {
-                Icon(
-                    Icons.Default.ContentCopy,
-                    contentDescription = null,
-                    modifier = Modifier.size(if (isLandscape) 16.dp else 18.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = stringResource(R.string.copy_to_clipboard),
-                    fontSize = if (isLandscape) 13.sp else 14.sp
-                )
-            }
-        },
-        dismissButton = {
             TextButton(
                 onClick = onDismiss,
                 modifier = if (isLandscape) Modifier.height(36.dp) else Modifier
@@ -1119,7 +1102,7 @@ private fun AdvancedStepCard(
 
                     FilterChip(
                         selected = !isWorkout,
-                        onClick = { onUpdate(step.copy(type = StepType.Rest)) },
+                        onClick = { onUpdate(step.copy(type = StepType.Rest, name = "")) },
                         label = { Text(stringResource(R.string.rest)) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = AppConfig.TimerScreen.restColor.copy(alpha = 0.22f),
@@ -1204,17 +1187,19 @@ private fun AdvancedStepCard(
                 }
             }
 
-            // Optional Step title input
-            OutlinedTextField(
-                value = step.name,
-                onValueChange = { onUpdate(step.copy(name = it.take(50))) },
-                label = { Text(stringResource(R.string.title_optional)) },
-                singleLine = true,
-                placeholder = {
-                    Text(if (isWorkout) stringResource(R.string.eg_pushups) else stringResource(R.string.eg_catch_breath))
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+            // Optional Step title input - workouts only
+            if (isWorkout) {
+                OutlinedTextField(
+                    value = step.name,
+                    onValueChange = { onUpdate(step.copy(name = it.take(50))) },
+                    label = { Text(stringResource(R.string.title_optional)) },
+                    singleLine = true,
+                    placeholder = {
+                        Text(stringResource(R.string.eg_pushups))
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }
