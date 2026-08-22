@@ -5,7 +5,6 @@ import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.SoundPool
-import android.os.Build
 import com.johnykvsky.jktimer.config.AppConfig
 import java.util.concurrent.ConcurrentHashMap
 
@@ -82,19 +81,10 @@ class AndroidTimerSoundPlayer(context: Context) : TimerSoundPlayer {
     private fun requestAudioFocus() {
         val am = audioManager ?: return
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
-                    .setAudioAttributes(audioAttributes)
-                    .build()
-                am.requestAudioFocus(focusRequest)
-            } else {
-                @Suppress("DEPRECATION")
-                am.requestAudioFocus(
-                    null,
-                    AudioManager.STREAM_MUSIC,
-                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK
-                )
-            }
+            val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                .setAudioAttributes(audioAttributes)
+                .build()
+            am.requestAudioFocus(focusRequest)
         } catch (_: Exception) {
         }
     }

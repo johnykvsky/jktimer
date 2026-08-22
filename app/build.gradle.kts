@@ -13,8 +13,8 @@ android {
         applicationId = "com.johnykvsky.jktimer"
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.0.1"
+        versionCode = 2
+        versionName = "0.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -32,6 +32,11 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    bundle {
+        language {
+            enableSplit = false
+        }
     }
 }
 

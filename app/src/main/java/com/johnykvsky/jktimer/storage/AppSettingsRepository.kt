@@ -1,6 +1,7 @@
 package com.johnykvsky.jktimer.storage
 
 import android.content.Context
+import androidx.core.content.edit
 import com.johnykvsky.jktimer.model.AppLanguage
 import com.johnykvsky.jktimer.model.AppSettings
 import com.johnykvsky.jktimer.ui.theme.ThemeMode
@@ -43,16 +44,16 @@ class AppSettingsRepository(context: Context) {
     }
 
     fun save(settings: AppSettings) {
-        preferences.edit()
-            .putString(KEY_THEME_MODE, settings.themeMode.name)
-            .putString(KEY_LANGUAGE, settings.language.name)
-            .putBoolean(KEY_HAPTIC_FEEDBACK, settings.hapticFeedbackEnabled)
-            .putInt(KEY_PREP_SECONDS, settings.prepSeconds)
-            .putInt(KEY_TIME_INTERVAL_SECONDS, settings.timeIntervalSeconds)
-            .putBoolean(KEY_SOUND_ENABLED, settings.soundEnabled)
-            .putFloat(KEY_SOUND_VOLUME, settings.soundVolume)
-            .putBoolean(KEY_SHOW_TOTAL_REMAINING_TIME, settings.showTotalRemainingTime)
-            .apply()
+        preferences.edit {
+            putString(KEY_THEME_MODE, settings.themeMode.name)
+            putString(KEY_LANGUAGE, settings.language.name)
+            putBoolean(KEY_HAPTIC_FEEDBACK, settings.hapticFeedbackEnabled)
+            putInt(KEY_PREP_SECONDS, settings.prepSeconds)
+            putInt(KEY_TIME_INTERVAL_SECONDS, settings.timeIntervalSeconds)
+            putBoolean(KEY_SOUND_ENABLED, settings.soundEnabled)
+            putFloat(KEY_SOUND_VOLUME, settings.soundVolume)
+            putBoolean(KEY_SHOW_TOTAL_REMAINING_TIME, settings.showTotalRemainingTime)
+        }
     }
 
     private companion object {

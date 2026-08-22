@@ -82,16 +82,6 @@ class WorkoutTimerController(
         }
     }
 
-    fun start(
-        config: TimerConfig,
-        prepSeconds: Int,
-        soundEnabled: Boolean,
-        hapticEnabled: Boolean,
-        scope: CoroutineScope
-    ) {
-        start(TrainingPlan.Simple(config), prepSeconds, soundEnabled, hapticEnabled, scope)
-    }
-
     fun pause() {
         if (_state.value.isActive && !isPaused) {
             isPaused = true

@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.media.AudioManager
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -66,14 +65,7 @@ class MainActivity : ComponentActivity() {
 
     private fun createLocalizedContext(context: Context, language: AppLanguage): Context {
         val targetLocale = when (language) {
-            AppLanguage.System -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Resources.getSystem().configuration.locales[0]
-                } else {
-                    @Suppress("DEPRECATION")
-                    Resources.getSystem().configuration.locale
-                }
-            }
+            AppLanguage.System -> Resources.getSystem().configuration.locales[0]
             AppLanguage.English -> Locale.ENGLISH
             AppLanguage.Polish -> Locale.forLanguageTag("pl")
         }

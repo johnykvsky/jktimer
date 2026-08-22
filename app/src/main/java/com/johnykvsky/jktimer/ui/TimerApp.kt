@@ -100,7 +100,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
@@ -506,6 +505,7 @@ private fun TrainingSummaryDialog(
     val workoutLabel = stringResource(R.string.workout)
     val restLabel = stringResource(R.string.rest)
     val setsLabel = stringResource(R.string.sets_label)
+    val copiedMessage = stringResource(R.string.copied_to_clipboard)
     val summaryText = remember(preset, plan, timePrefix, workoutLabel, restLabel, setsLabel) {
         plan.generateShareableSummary(
             title = preset.name,
@@ -520,7 +520,7 @@ private fun TrainingSummaryDialog(
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
         val clip = ClipData.newPlainText("workout_summary", summaryText)
         clipboard?.setPrimaryClip(clip)
-        Toast.makeText(context, context.getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, copiedMessage, Toast.LENGTH_SHORT).show()
     }
 
     AlertDialog(

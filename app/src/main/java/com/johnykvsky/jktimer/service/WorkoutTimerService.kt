@@ -7,12 +7,10 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.johnykvsky.jktimer.MainActivity
 import com.johnykvsky.jktimer.R
-import com.johnykvsky.jktimer.timer.TimerPhase
 
 class WorkoutTimerService : Service() {
 
@@ -30,7 +28,7 @@ class WorkoutTimerService : Service() {
             ACTION_START -> {
                 val fallbackTitle = getString(R.string.workout)
                 val title = intent.getStringExtra(EXTRA_TITLE) ?: fallbackTitle
-                val notification = buildNotification(title, getString(R.string.phase_get_ready), null)
+                val notification = buildNotification(title, getString(R.string.phase_get_ready))
                 startForeground(NOTIFICATION_ID, notification)
             }
             ACTION_UPDATE -> {
@@ -45,7 +43,7 @@ class WorkoutTimerService : Service() {
                 val nextSuffix = if (!nextStep.isNullOrBlank()) " (${getString(R.string.next_step_prefix, nextStep)})" else ""
                 val content = "$statusPrefix • ${remainingSeconds}s$nextSuffix"
 
-                val notification = buildNotification(title, content, null)
+                val notification = buildNotification(title, content)
                 notificationManager.notify(NOTIFICATION_ID, notification)
             }
             ACTION_STOP -> {
@@ -59,20 +57,18 @@ class WorkoutTimerService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                getString(R.string.notification_channel_name),
-                NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = getString(R.string.notification_channel_desc)
-                setShowBadge(false)
-            }
-            notificationManager.createNotificationChannel(channel)
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            getString(R.string.notification_channel_name),
+            NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            description = getString(R.string.notification_channel_desc)
+            setShowBadge(false)
         }
+        notificationManager.createNotificationChannel(channel)
     }
 
-    private fun buildNotification(title: String, content: String, phase: TimerPhase?): Notification {
+    private fun buildNotification(title: String, content: String): Notification {
         val launchIntent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
@@ -113,11 +109,7 @@ class WorkoutTimerService : Service() {
                 action = ACTION_START
                 putExtra(EXTRA_TITLE, title)
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
+            context.startForegroundService(intent)
         }
 
         fun updateService(

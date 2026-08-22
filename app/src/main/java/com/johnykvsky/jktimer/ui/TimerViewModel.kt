@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.johnykvsky.jktimer.model.AppSettings
-import com.johnykvsky.jktimer.model.TimerConfig
 import com.johnykvsky.jktimer.model.TimerPreset
 import com.johnykvsky.jktimer.model.TrainingPlan
 import com.johnykvsky.jktimer.sound.AndroidTimerSoundPlayer
@@ -111,10 +110,6 @@ class TimerViewModel @JvmOverloads constructor(
         _currentScreen.value = AppScreen.RunTimer
     }
 
-    fun startTimer(config: TimerConfig, title: String) {
-        startTimer(TrainingPlan.Simple(config), title)
-    }
-
     fun pauseTimer() {
         timerController.pause()
     }
@@ -132,10 +127,6 @@ class TimerViewModel @JvmOverloads constructor(
         val updated = presetRepository.savePreset(existingId, name, description, plan)
         _presets.value = updated
         _currentScreen.value = AppScreen.Home
-    }
-
-    fun savePreset(existingId: Long?, name: String, description: String, config: TimerConfig) {
-        savePreset(existingId, name, description, TrainingPlan.Simple(config))
     }
 
     fun deletePreset(id: Long) {

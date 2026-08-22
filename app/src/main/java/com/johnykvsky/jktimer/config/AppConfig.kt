@@ -8,14 +8,12 @@ import com.johnykvsky.jktimer.R
 object AppConfig {
     object Input {
         const val maxNameLength = 100
-        const val maxDescriptionLength = 2_000
     }
 
     object TimerScreen {
         // Ring and countdown text colors for active phases.
         val workoutColorPrimary = Color(0xFFE68A45)   // Energizing warm orange
         val workoutColorSecondary = Color(0xFF2979FF) // Electric vibrant blue
-        val workoutColor = workoutColorPrimary
         val restColor = Color(0xFF2E7D32)            // Calming green
 
         // Thickness of the countdown ring.
@@ -35,7 +33,7 @@ object AppConfig {
 
     object Metadata {
         const val appName = "JK Timer"
-        const val versionName = "0.0.1"
+        const val versionName = "0.0.2"
         const val author = "JK"
     }
 }

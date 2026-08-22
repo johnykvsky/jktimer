@@ -6,16 +6,12 @@
     <string name="save">Save</string>
     <string name="start">Start</string>
     <string name="edit">Edit</string>
-    <string name="clone_action">Clone</string>
-    <string name="clone_copy_suffix">(Copy)</string>
     <string name="workout">Workout</string>
     <string name="rest">Rest</string>
     <string name="simple">Simple</string>
     <string name="advanced">Advanced</string>
-    <string name="seconds">Seconds</string>
     <string name="mute_sound">Mute sound</string>
     <string name="unmute_sound">Unmute sound</string>
-    <string name="duplicate">Duplicate</string>
     <string name="move_up">Move up</string>
     <string name="move_down">Move down</string>
     <string name="increase">Increase</string>
@@ -36,7 +32,6 @@
     <string name="default_training">Timer</string>
     <string name="training_summary_title">Training Summary</string>
     <string name="summary_time_prefix">time</string>
-    <string name="total_time_label">Total time</string>
     <string name="sets_label">Sets</string>
     <string name="copy_to_clipboard">Copy to clipboard</string>
     <string name="copied_to_clipboard">Summary copied to clipboard</string>
@@ -52,9 +47,6 @@
     <string name="advanced_sequence_duration">Advanced Sequence Duration</string>
     <string name="training_name">Training name</string>
     <string name="name_required">Name is required</string>
-    <string name="description_optional">Description (optional)</string>
-    <string name="workout_time_seconds">Workout time (seconds)</string>
-    <string name="rest_time_seconds">Rest time (seconds)</string>
     <string name="repeats_sets">Number of repeats (sets)</string>
     <string name="add_item">Add item</string>
     <string name="max_steps_reached">Maximum limit of %d steps reached.</string>
@@ -63,8 +55,6 @@
     <string name="training_steps_count">Training Steps (%1$d/%2$d)</string>
     <string name="title_optional">Title (optional)</string>
     <string name="eg_pushups">e.g. Pushups</string>
-    <string name="eg_catch_breath">e.g. Catch breath</string>
-    <string name="enter_value_range">Enter a value from %s</string>
     <string name="summary_simple_format">%1$ds workout • %2$ds rest • %3$d sets</string>
     <string name="summary_advanced_format">%1$d steps • %2$d work, %3$d rest</string>
 

@@ -43,12 +43,7 @@ class AndroidTimerVibrationPlayer(context: Context) : TimerVibrationPlayer {
         if (!v.hasVibrator()) return
 
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                v.vibrate(VibrationEffect.createOneShot(durationMs, amplitude))
-            } else {
-                @Suppress("DEPRECATION")
-                v.vibrate(durationMs)
-            }
+            v.vibrate(VibrationEffect.createOneShot(durationMs, amplitude))
         } catch (_: Exception) {
         }
     }
@@ -58,12 +53,7 @@ class AndroidTimerVibrationPlayer(context: Context) : TimerVibrationPlayer {
         if (!v.hasVibrator()) return
 
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                v.vibrate(VibrationEffect.createWaveform(timings, -1))
-            } else {
-                @Suppress("DEPRECATION")
-                v.vibrate(timings, -1)
-            }
+            v.vibrate(VibrationEffect.createWaveform(timings, -1))
         } catch (_: Exception) {
         }
     }

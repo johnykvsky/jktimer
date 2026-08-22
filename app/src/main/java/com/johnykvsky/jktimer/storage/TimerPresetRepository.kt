@@ -1,6 +1,7 @@
 package com.johnykvsky.jktimer.storage
 
 import android.content.Context
+import androidx.core.content.edit
 import com.johnykvsky.jktimer.R
 import com.johnykvsky.jktimer.model.StepType
 import com.johnykvsky.jktimer.model.TimerConfig
@@ -43,7 +44,7 @@ class TimerPresetRepository(private val context: Context) {
             id = System.currentTimeMillis(),
             name = defaultName,
             description = "",
-            config = TimerConfig(workoutSeconds = 40, restSeconds = 20, repeats = 3)
+            plan = TrainingPlan.Simple(TimerConfig(workoutSeconds = 40, restSeconds = 20, repeats = 3))
         )
         persist(listOf(defaultPreset))
         return listOf(defaultPreset)
@@ -67,13 +68,6 @@ class TimerPresetRepository(private val context: Context) {
         persist(updated)
         return updated
     }
-
-    fun savePreset(
-        existingId: Long?,
-        name: String,
-        description: String,
-        config: TimerConfig
-    ): List<TimerPreset> = savePreset(existingId, name, description, TrainingPlan.Simple(config))
 
     fun deletePreset(id: Long): List<TimerPreset> {
         val updated = loadPresets().filterNot { it.id == id }
@@ -113,10 +107,10 @@ class TimerPresetRepository(private val context: Context) {
             }
             jsonArray.put(obj)
         }
-        preferences.edit()
-            .putString(KEY_PRESETS_JSON, jsonArray.toString())
-            .putBoolean(KEY_INITIALIZED, true)
-            .apply()
+        preferences.edit {
+            putString(KEY_PRESETS_JSON, jsonArray.toString())
+            putBoolean(KEY_INITIALIZED, true)
+        }
     }
 
     private fun parseJsonPresets(json: String): List<TimerPreset> {

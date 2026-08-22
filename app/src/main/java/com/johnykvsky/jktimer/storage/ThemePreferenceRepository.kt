@@ -1,6 +1,7 @@
 package com.johnykvsky.jktimer.storage
 
 import android.content.Context
+import androidx.core.content.edit
 import com.johnykvsky.jktimer.ui.theme.ThemeMode
 
 class ThemePreferenceRepository(context: Context) {
@@ -13,7 +14,7 @@ class ThemePreferenceRepository(context: Context) {
     }
 
     fun save(mode: ThemeMode) {
-        preferences.edit().putString(THEME_MODE_KEY, mode.name).apply()
+        preferences.edit { putString(THEME_MODE_KEY, mode.name) }
     }
 
     private companion object {

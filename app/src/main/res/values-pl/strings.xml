@@ -7,16 +7,12 @@
     <string name="save">Zapisz</string>
     <string name="start">Start</string>
     <string name="edit">Edytuj</string>
-    <string name="clone_action">Klonuj</string>
-    <string name="clone_copy_suffix">(Kopia)</string>
     <string name="workout">Ćwiczenie</string>
     <string name="rest">Odpoczynek</string>
     <string name="simple">Prosty</string>
     <string name="advanced">Zaawansowany</string>
-    <string name="seconds">Sekundy</string>
     <string name="mute_sound">Wycisz dźwięk</string>
     <string name="unmute_sound">Włącz dźwięk</string>
-    <string name="duplicate">Duplikuj</string>
     <string name="move_up">Przesuń w górę</string>
     <string name="move_down">Przesuń w dół</string>
     <string name="increase">Zwiększ</string>
@@ -37,7 +33,6 @@
     <string name="default_training">Trening przykładowy</string>
     <string name="training_summary_title">Podsumowanie treningu</string>
     <string name="summary_time_prefix">czas</string>
-    <string name="total_time_label">Całkowity czas</string>
     <string name="sets_label">Serie</string>
     <string name="copy_to_clipboard">Kopiuj do schowka</string>
     <string name="copied_to_clipboard">Skopiowano podsumowanie do schowka</string>
@@ -53,9 +48,6 @@
     <string name="advanced_sequence_duration">Czas trwania sekwencji</string>
     <string name="training_name">Nazwa treningu</string>
     <string name="name_required">Nazwa jest wymagana</string>
-    <string name="description_optional">Opis (opcjonalny)</string>
-    <string name="workout_time_seconds">Czas ćwiczenia (sekundy)</string>
-    <string name="rest_time_seconds">Czas odpoczynku (sekundy)</string>
     <string name="repeats_sets">Liczba powtórzeń (serii)</string>
     <string name="add_item">Dodaj element</string>
     <string name="max_steps_reached">Osiągnięto maksymalny limit %d kroków.</string>
@@ -64,8 +56,6 @@
     <string name="training_steps_count">Kroki treningu (%1$d/%2$d)</string>
     <string name="title_optional">Tytuł (opcjonalny)</string>
     <string name="eg_pushups">np. Pompki</string>
-    <string name="eg_catch_breath">np. Złap oddech</string>
-    <string name="enter_value_range">Wprowadź wartość od %s</string>
     <string name="summary_simple_format">%1$ds ćwiczenia • %2$ds odpoczynku • %3$d serii</string>
     <string name="summary_advanced_format">%1$d kroków • %2$d ćw., %3$d odp.</string>
 
