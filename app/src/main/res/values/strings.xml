@@ -34,6 +34,12 @@
     <string name="delete_training_title">Delete timer</string>
     <string name="delete_training_confirm">Delete %s?</string>
     <string name="default_training">Timer</string>
+    <string name="training_summary_title">Training Summary</string>
+    <string name="total_time_label">Total time</string>
+    <string name="sets_label">Sets</string>
+    <string name="copy_to_clipboard">Copy to clipboard</string>
+    <string name="copied_to_clipboard">Summary copied to clipboard</string>
+    <string name="close">Close</string>
 
     <!-- Form Screen -->
     <string name="new_training">New timer</string>

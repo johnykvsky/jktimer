@@ -1,6 +1,10 @@
 package com.johnykvsky.jktimer.ui
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.res.Configuration
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -21,9 +25,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -37,6 +43,7 @@ import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FitnessCenter
@@ -75,6 +82,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -92,6 +100,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -216,6 +226,7 @@ private fun TimerHomeScreen(
     onOpenSettings: () -> Unit
 ) {
     var presetToDelete by remember { mutableStateOf<TimerPreset?>(null) }
+    var presetForSummary by remember { mutableStateOf<TimerPreset?>(null) }
 
     Scaffold(
         topBar = {
@@ -319,7 +330,8 @@ private fun TimerHomeScreen(
                             preset = preset,
                             onStart = { onStartPreset(preset) },
                             onEdit = { onEditPreset(preset) },
-                            onDelete = { presetToDelete = preset }
+                            onDelete = { presetToDelete = preset },
+                            onShowSummary = { presetForSummary = preset }
                         )
                     }
                 }
@@ -349,6 +361,13 @@ private fun TimerHomeScreen(
             }
         )
     }
+
+    presetForSummary?.let { preset ->
+        TrainingSummaryDialog(
+            preset = preset,
+            onDismiss = { presetForSummary = null }
+        )
+    }
 }
 
 @Composable
@@ -356,7 +375,8 @@ private fun PresetCard(
     preset: TimerPreset,
     onStart: () -> Unit,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onShowSummary: () -> Unit = {}
 ) {
     val plan = preset.plan
     val isAdvanced = plan is TrainingPlan.Advanced
@@ -380,7 +400,7 @@ private fun PresetCard(
                     fontWeight = FontWeight.Bold
                 )
                 AssistChip(
-                    onClick = {},
+                    onClick = onShowSummary,
                     label = {
                         Text(
                             text = if (isAdvanced) stringResource(R.string.advanced) else stringResource(R.string.simple),
@@ -471,6 +491,126 @@ private fun PresetCard(
             }
         }
     }
+}
+
+@Composable
+private fun TrainingSummaryDialog(
+    preset: TimerPreset,
+    onDismiss: () -> Unit
+) {
+    val plan = preset.plan
+    val isAdvanced = plan is TrainingPlan.Advanced
+    val context = LocalContext.current
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val totalTimeLabel = stringResource(R.string.total_time_label)
+    val workoutLabel = stringResource(R.string.workout)
+    val restLabel = stringResource(R.string.rest)
+    val setsLabel = stringResource(R.string.sets_label)
+    val summaryText = remember(preset, plan, totalTimeLabel, workoutLabel, restLabel, setsLabel) {
+        plan.generateShareableSummary(
+            title = preset.name,
+            totalTimeLabel = totalTimeLabel,
+            workoutLabel = workoutLabel,
+            restLabel = restLabel,
+            setsLabel = setsLabel
+        )
+    }
+
+    fun copyToClipboard() {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+        val clip = ClipData.newPlainText("workout_summary", summaryText)
+        clipboard?.setPrimaryClip(clip)
+        Toast.makeText(context, context.getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show()
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+        modifier = Modifier
+            .fillMaxWidth(if (isLandscape) 0.75f else 0.92f)
+            .padding(vertical = if (isLandscape) 8.dp else 16.dp),
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.training_summary_title),
+                        style = if (isLandscape) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = preset.name.ifBlank {
+                            if (isAdvanced) stringResource(R.string.advanced_training) else stringResource(R.string.simple_training)
+                        },
+                        style = if (isLandscape) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                IconButton(
+                    onClick = { copyToClipboard() },
+                    modifier = if (isLandscape) Modifier.size(36.dp) else Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        Icons.Default.ContentCopy,
+                        contentDescription = stringResource(R.string.copy_to_clipboard),
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = if (isLandscape) Modifier.size(20.dp) else Modifier.size(24.dp)
+                    )
+                }
+            }
+        },
+        text = {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.6f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = if (isLandscape) 140.dp else 380.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    text = summaryText,
+                    style = if (isLandscape) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
+                    fontFamily = FontFamily.Monospace,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(if (isLandscape) 10.dp else 14.dp)
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { copyToClipboard() },
+                modifier = if (isLandscape) Modifier.height(36.dp) else Modifier
+            ) {
+                Icon(
+                    Icons.Default.ContentCopy,
+                    contentDescription = null,
+                    modifier = Modifier.size(if (isLandscape) 16.dp else 18.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = stringResource(R.string.copy_to_clipboard),
+                    fontSize = if (isLandscape) 13.sp else 14.sp
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                modifier = if (isLandscape) Modifier.height(36.dp) else Modifier
+            ) {
+                Text(
+                    text = stringResource(R.string.close),
+                    fontSize = if (isLandscape) 13.sp else 14.sp
+                )
+            }
+        }
+    )
 }
 
 private enum class FormTrainingType {

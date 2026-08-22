@@ -46,6 +46,35 @@ sealed interface TrainingPlan {
         }
     }
 
+    fun generateShareableSummary(
+        title: String,
+        totalTimeLabel: String = "Total time",
+        workoutLabel: String = "Workout",
+        restLabel: String = "Rest",
+        setsLabel: String = "Sets"
+    ): String = when (this) {
+        is Simple -> {
+            val name = title.ifBlank { "Workout Timer" }
+            val duration = formattedDuration()
+            "$name\n$totalTimeLabel: $duration\n$workoutLabel: ${config.workoutSeconds}s\n$restLabel: ${config.restSeconds}s\n$setsLabel: ${config.repeats}"
+        }
+        is Advanced -> {
+            val sb = StringBuilder()
+            sb.append(title.ifBlank { "Advanced Training" }).append("\n")
+            sb.append("$totalTimeLabel: ${formattedDuration()}\n")
+            steps.forEachIndexed { index, step ->
+                val typeStr = if (step.type == StepType.Workout) workoutLabel else restLabel
+                val line = if (step.name.isNotBlank()) {
+                    "${index + 1}. $typeStr - ${step.name} (${step.durationSeconds}s)"
+                } else {
+                    "${index + 1}. $typeStr (${step.durationSeconds}s)"
+                }
+                sb.append(line).append("\n")
+            }
+            sb.toString().trimEnd()
+        }
+    }
+
     companion object {
         const val MAX_ADVANCED_STEPS = 99
     }

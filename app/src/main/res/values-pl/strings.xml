@@ -35,6 +35,12 @@
     <string name="delete_training_title">Usuń trening</string>
     <string name="delete_training_confirm">Usunąć %s?</string>
     <string name="default_training">Trening przykładowy</string>
+    <string name="training_summary_title">Podsumowanie treningu</string>
+    <string name="total_time_label">Całkowity czas</string>
+    <string name="sets_label">Serie</string>
+    <string name="copy_to_clipboard">Kopiuj do schowka</string>
+    <string name="copied_to_clipboard">Skopiowano podsumowanie do schowka</string>
+    <string name="close">Zamknij</string>
 
     <!-- Form Screen -->
     <string name="new_training">Nowy trening</string>
