@@ -7,13 +7,19 @@ local.properties
 
 # Log/OS Files
 *.log
+.DS_Store
+Thumbs.db
 
-# Android Studio generated files and folders
+# Android Studio & Build generated files and folders
 captures/
 .externalNativeBuild/
 .cxx/
+.kotlin/
 *.aab
 *.apk
+*.dm
+app/release/
+release/
 output-metadata.json
 
 # IntelliJ
@@ -23,9 +29,12 @@ misc.xml
 deploymentTargetDropDown.xml
 render.experimental.xml
 
-# Keystore files
+# Keystore files & App Signing Keys
 *.jks
 *.keystore
+*.key
+*.pepk
+*.p12
 
 # Google Services (e.g. APIs or Firebase)
 google-services.json
@@ -33,4 +42,7 @@ google-services.json
 # Android Profiling
 *.hprof
 
-.local
+# Local files & directories (e.g. mydb.local, docs.local, config.local.*)
+*.local
+*.local/
+*.local.*
