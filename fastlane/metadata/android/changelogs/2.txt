@@ -1,0 +1,3 @@
+• Improved workout and training summary formatting
+• UI and performance improvements
+• Bug fixes and general cleanup
