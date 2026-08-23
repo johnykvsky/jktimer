@@ -50,7 +50,7 @@ object TimerSequence {
             val colorIndex = if (config.restSeconds > 0) 0 else index % 2
             val remainingRoundsAfterThis = config.repeats - index - 1
             val futureWorkSeconds = remainingRoundsAfterThis * config.workoutSeconds
-            val futureRestSeconds = remainingRoundsAfterThis * config.restSeconds + (if (index < config.repeats - 1) config.restSeconds else 0)
+            val futureRestSeconds = remainingRoundsAfterThis * config.restSeconds
             val nextLabelFromWorkout = if (index < config.repeats - 1) "Rest (${config.restSeconds}s)" else "Training Finish"
 
             for (remaining in config.workoutSeconds downTo 1) {

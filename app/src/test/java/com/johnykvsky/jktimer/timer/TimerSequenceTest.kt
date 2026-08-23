@@ -250,4 +250,79 @@ class TimerSequenceTest {
         assertEquals("Workout (20s) • Plank", advTicks.first { it.phase == TimerPhase.Rest }.nextStepLabel)
         assertEquals("Training Finish", advTicks.first { it.phase == TimerPhase.Workout && it.stepLabel == "Plank" }.nextStepLabel)
     }
+
+    @Test
+    fun simplePlanTotalRemainingSecondsDecrementsSmoothlyWithoutGapsOrJumps() {
+        // 40s workout, 20s rest, 3 repeats -> (3 * 40) + (2 * 20) = 160s (2m 40s)
+        val config = TimerConfig(workoutSeconds = 40, restSeconds = 20, repeats = 3)
+        val prepSeconds = 3
+        val ticks = TimerSequence.build(config, prepSeconds = prepSeconds)
+
+        // Starting prep ticks: 163, 162, 161
+        val startingTicks = ticks.filter { it.phase == TimerPhase.Starting }
+        assertEquals(listOf(163, 162, 161), startingTicks.map { it.totalRemainingSeconds })
+
+        // First workout tick (remaining = 40s) should start at 160s (2m 40s), NOT 180s (3m 00s)!
+        val firstWorkoutTick = ticks.first { it.phase == TimerPhase.Workout }
+        assertEquals(40, firstWorkoutTick.remainingSeconds)
+        assertEquals(160, firstWorkoutTick.totalRemainingSeconds)
+
+        // Filter all 1-second interval ticks (excluding 0-second boundary transition ticks and Complete)
+        val activeSecondTicks = ticks.filter { it.remainingSeconds > 0 && it.phase != TimerPhase.Complete }
+        assertEquals(163, activeSecondTicks.size) // 3s prep + 160s workout/rest = 163 seconds total
+
+        for (i in 0 until activeSecondTicks.size) {
+            val expectedRemaining = 163 - i
+            assertEquals(
+                "Mismatch at second index $i (phase: ${activeSecondTicks[i].phase}, remaining: ${activeSecondTicks[i].remainingSeconds})",
+                expectedRemaining,
+                activeSecondTicks[i].totalRemainingSeconds
+            )
+        }
+
+        // Final Complete tick
+        assertEquals(0, ticks.last().totalRemainingSeconds)
+        assertEquals(TimerPhase.Complete, ticks.last().phase)
+    }
+
+    @Test
+    fun advancedPlanTotalRemainingSecondsDecrementsSmoothlyWithoutGapsOrJumps() {
+        val steps = listOf(
+            com.johnykvsky.jktimer.model.TimerStep(type = com.johnykvsky.jktimer.model.StepType.Workout, durationSeconds = 15, name = "Warmup"),
+            com.johnykvsky.jktimer.model.TimerStep(type = com.johnykvsky.jktimer.model.StepType.Workout, durationSeconds = 20, name = "Pushups"),
+            com.johnykvsky.jktimer.model.TimerStep(type = com.johnykvsky.jktimer.model.StepType.Rest, durationSeconds = 15, name = "Rest"),
+            com.johnykvsky.jktimer.model.TimerStep(type = com.johnykvsky.jktimer.model.StepType.Workout, durationSeconds = 60, name = "Plank"),
+            com.johnykvsky.jktimer.model.TimerStep(type = com.johnykvsky.jktimer.model.StepType.Rest, durationSeconds = 30, name = "Rest")
+        )
+        // Total = 15 + 20 + 15 + 60 + 30 = 140s
+        val plan = com.johnykvsky.jktimer.model.TrainingPlan.Advanced(steps)
+        val prepSeconds = 5
+        val ticks = TimerSequence.build(plan, prepSeconds = prepSeconds)
+
+        // Starting prep ticks: 145, 144, 143, 142, 141
+        val startingTicks = ticks.filter { it.phase == TimerPhase.Starting }
+        assertEquals(listOf(145, 144, 143, 142, 141), startingTicks.map { it.totalRemainingSeconds })
+
+        // First step tick
+        val firstStepTick = ticks.first { it.phase == TimerPhase.Workout }
+        assertEquals(15, firstStepTick.remainingSeconds)
+        assertEquals(140, firstStepTick.totalRemainingSeconds)
+
+        // Filter all 1-second interval ticks
+        val activeSecondTicks = ticks.filter { it.remainingSeconds > 0 && it.phase != TimerPhase.Complete }
+        assertEquals(145, activeSecondTicks.size) // 5s prep + 140s plan = 145 seconds total
+
+        for (i in 0 until activeSecondTicks.size) {
+            val expectedRemaining = 145 - i
+            assertEquals(
+                "Mismatch at second index $i (phase: ${activeSecondTicks[i].phase}, remaining: ${activeSecondTicks[i].remainingSeconds})",
+                expectedRemaining,
+                activeSecondTicks[i].totalRemainingSeconds
+            )
+        }
+
+        // Final Complete tick
+        assertEquals(0, ticks.last().totalRemainingSeconds)
+        assertEquals(TimerPhase.Complete, ticks.last().phase)
+    }
 }
