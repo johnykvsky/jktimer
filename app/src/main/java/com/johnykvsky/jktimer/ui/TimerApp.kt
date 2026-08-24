@@ -110,6 +110,7 @@ import com.johnykvsky.jktimer.R
 import com.johnykvsky.jktimer.config.AppConfig
 import com.johnykvsky.jktimer.model.AppLanguage
 import com.johnykvsky.jktimer.model.AppSettings
+import com.johnykvsky.jktimer.model.HalfTimeRoundingMode
 import com.johnykvsky.jktimer.model.StepType
 import com.johnykvsky.jktimer.model.TimerConfig
 import com.johnykvsky.jktimer.model.TimerPreset
@@ -2029,6 +2030,95 @@ private fun SettingsScreen(
                                     Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = null, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(stringResource(R.string.test_sound), fontSize = 13.sp)
+                                }
+                            }
+                        }
+
+                        // Countdown sounds switch
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                                Text(
+                                    text = stringResource(R.string.countdown_sounds),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = stringResource(R.string.countdown_sounds_desc),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Switch(
+                                checked = settings.countdownSoundsEnabled,
+                                onCheckedChange = { onSettingsChange(settings.copy(countdownSoundsEnabled = it)) }
+                            )
+                        }
+
+                        // Half-workout alert switch & rounding mode
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                                    Text(
+                                        text = stringResource(R.string.half_workout_warning),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.half_workout_warning_desc),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                Switch(
+                                    checked = settings.halfWorkoutWarningEnabled,
+                                    onCheckedChange = { onSettingsChange(settings.copy(halfWorkoutWarningEnabled = it)) }
+                                )
+                            }
+
+                            if (settings.halfWorkoutWarningEnabled) {
+                                Column(
+                                    modifier = Modifier.padding(top = 4.dp),
+                                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.half_time_rounding),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        HalfTimeRoundingMode.entries.forEach { mode ->
+                                            val label = when (mode) {
+                                                HalfTimeRoundingMode.Down -> stringResource(R.string.rounding_down)
+                                                HalfTimeRoundingMode.Up -> stringResource(R.string.rounding_up)
+                                            }
+                                            if (mode == settings.halfTimeRoundingMode) {
+                                                Button(
+                                                    onClick = { onSettingsChange(settings.copy(halfTimeRoundingMode = mode)) },
+                                                    modifier = Modifier.weight(1f)
+                                                ) {
+                                                    Text(label)
+                                                }
+                                            } else {
+                                                OutlinedButton(
+                                                    onClick = { onSettingsChange(settings.copy(halfTimeRoundingMode = mode)) },
+                                                    modifier = Modifier.weight(1f)
+                                                ) {
+                                                    Text(label)
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }

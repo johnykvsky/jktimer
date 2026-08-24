@@ -3,7 +3,7 @@ JK Timer is a fast, clean, and customizable interval timer for Android — desig
 Features:
 • Simple & Advanced Modes: Set quick work/rest intervals or create custom multi-step routines with up to 99 exercises and custom labels (e.g. Pushups, Plank).
 • Glanceable Visuals: Large animated countdown ring, alternating colors for consecutive workouts, and "Next Up" exercise previews.
-• Sound & Haptics: Distinct audio cues for interval transitions, 10-second warnings, and 3-2-1 countdown beeps with adjustable volume and vibration.
+• Sound & Haptics: Distinct audio cues for interval transitions, half-workout alerts, and 3-2-1 countdown beeps with adjustable volume and vibration.
 • Background & Lock Screen Support: Runs reliably via foreground notifications when the screen is locked or while using other apps.
 • Bilingual UI: Native support for English and Polish with automatic system detection and in-app language switching.
 • Landscape Mode: Adaptive 2-column layout for tablets and widescreen phones.

@@ -1,6 +1,7 @@
 package com.johnykvsky.jktimer.timer
 
 import android.os.SystemClock
+import com.johnykvsky.jktimer.model.HalfTimeRoundingMode
 import com.johnykvsky.jktimer.model.TimerConfig
 import com.johnykvsky.jktimer.model.TrainingPlan
 import com.johnykvsky.jktimer.sound.TimerSoundPlayer
@@ -25,19 +26,44 @@ class WorkoutTimerController(
     @Volatile
     private var isPaused = false
 
+    @Volatile
+    private var currentSoundEnabled = true
+
+    @Volatile
+    private var currentHapticEnabled = false
+
+    fun updateSoundEnabled(enabled: Boolean) {
+        currentSoundEnabled = enabled
+    }
+
+    fun updateHapticEnabled(enabled: Boolean) {
+        currentHapticEnabled = enabled
+    }
+
     fun start(
         plan: TrainingPlan,
         prepSeconds: Int,
         soundEnabled: Boolean,
         hapticEnabled: Boolean,
+        halfWorkoutWarningEnabled: Boolean = true,
+        halfTimeRoundingMode: HalfTimeRoundingMode = HalfTimeRoundingMode.Down,
+        countdownSoundsEnabled: Boolean = true,
         scope: CoroutineScope
     ) {
         if (!plan.isValid()) return
 
         stop()
         isPaused = false
+        currentSoundEnabled = soundEnabled
+        currentHapticEnabled = hapticEnabled
         job = scope.launch {
-            val ticks = TimerSequence.build(plan, prepSeconds)
+            val ticks = TimerSequence.build(
+                plan = plan,
+                prepSeconds = prepSeconds,
+                enableHalfWorkout = halfWorkoutWarningEnabled,
+                halfTimeRoundingMode = halfTimeRoundingMode,
+                enableCountdownSounds = countdownSoundsEnabled
+            )
             if (ticks.isEmpty()) return@launch
 
             val totalDuration = plan.totalDurationSeconds()
@@ -73,7 +99,7 @@ class WorkoutTimerController(
                     isActive = tick.phase != TimerPhase.Complete,
                     isPaused = isPaused
                 )
-                playEvents(tick.soundEvents, soundEnabled, hapticEnabled)
+                playEvents(tick.soundEvents, currentSoundEnabled, currentHapticEnabled)
 
                 if (tick.phase != TimerPhase.Complete && tick.remainingSeconds > 0) {
                     delayAccurateOneSecond()
@@ -137,7 +163,7 @@ class WorkoutTimerController(
             if (soundEnabled) {
                 when (event) {
                     TimerSoundEvent.Countdown -> soundPlayer.countdownBeep()
-                    TimerSoundEvent.TenSecondWarning -> soundPlayer.tenSecondWarningBeep()
+                    TimerSoundEvent.HalfWorkoutWarning -> soundPlayer.halfWorkoutWarningBeep()
                     TimerSoundEvent.WorkoutEnd -> soundPlayer.workoutEndBeep()
                     TimerSoundEvent.TrainingFinish -> soundPlayer.trainingFinishBeep()
                 }
@@ -145,7 +171,7 @@ class WorkoutTimerController(
             if (hapticEnabled) {
                 when (event) {
                     TimerSoundEvent.Countdown -> vibrationPlayer.countdownTick()
-                    TimerSoundEvent.TenSecondWarning -> vibrationPlayer.tenSecondWarning()
+                    TimerSoundEvent.HalfWorkoutWarning -> vibrationPlayer.halfWorkoutWarning()
                     TimerSoundEvent.WorkoutEnd -> vibrationPlayer.workoutEnd()
                     TimerSoundEvent.TrainingFinish -> vibrationPlayer.trainingFinish()
                 }

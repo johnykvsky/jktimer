@@ -23,7 +23,7 @@ object AppConfig {
     object Sound {
         // Bundled audio files. Edit these if you add different files under res/raw.
         val countdownSound = R.raw.countdown_beep
-        val tenSecondWarningSound = R.raw.ten_second_warning
+        val halfWorkoutWarningSound = R.raw.ten_second_warning
         val workoutEndSound = R.raw.workout_interval_end
         val trainingFinishSound = R.raw.training_end
 

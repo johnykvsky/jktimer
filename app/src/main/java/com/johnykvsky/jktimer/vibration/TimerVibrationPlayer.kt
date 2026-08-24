@@ -2,7 +2,7 @@ package com.johnykvsky.jktimer.vibration
 
 interface TimerVibrationPlayer {
     fun countdownTick()
-    fun tenSecondWarning()
+    fun halfWorkoutWarning()
     fun workoutEnd()
     fun trainingFinish()
     fun cancel()

@@ -1,22 +1,41 @@
 package com.johnykvsky.jktimer.timer
 
+import com.johnykvsky.jktimer.model.HalfTimeRoundingMode
 import com.johnykvsky.jktimer.model.StepType
 import com.johnykvsky.jktimer.model.TimerConfig
 import com.johnykvsky.jktimer.model.TimerStep
 import com.johnykvsky.jktimer.model.TrainingPlan
 
 object TimerSequence {
-    fun build(plan: TrainingPlan, prepSeconds: Int = 3): List<TimerTick> {
+    fun build(
+        plan: TrainingPlan,
+        prepSeconds: Int = 3,
+        enableHalfWorkout: Boolean = true,
+        halfTimeRoundingMode: HalfTimeRoundingMode = HalfTimeRoundingMode.Down,
+        enableCountdownSounds: Boolean = true
+    ): List<TimerTick> {
         return when (plan) {
-            is TrainingPlan.Simple -> buildSimple(plan.config, prepSeconds)
-            is TrainingPlan.Advanced -> buildAdvanced(plan.steps, prepSeconds)
+            is TrainingPlan.Simple -> buildSimple(plan.config, prepSeconds, enableHalfWorkout, halfTimeRoundingMode, enableCountdownSounds)
+            is TrainingPlan.Advanced -> buildAdvanced(plan.steps, prepSeconds, enableHalfWorkout, halfTimeRoundingMode, enableCountdownSounds)
         }
     }
 
-    fun build(config: TimerConfig, prepSeconds: Int = 3): List<TimerTick> =
-        buildSimple(config, prepSeconds)
+    fun build(
+        config: TimerConfig,
+        prepSeconds: Int = 3,
+        enableHalfWorkout: Boolean = true,
+        halfTimeRoundingMode: HalfTimeRoundingMode = HalfTimeRoundingMode.Down,
+        enableCountdownSounds: Boolean = true
+    ): List<TimerTick> =
+        buildSimple(config, prepSeconds, enableHalfWorkout, halfTimeRoundingMode, enableCountdownSounds)
 
-    private fun buildSimple(config: TimerConfig, prepSeconds: Int): List<TimerTick> {
+    private fun buildSimple(
+        config: TimerConfig,
+        prepSeconds: Int,
+        enableHalfWorkout: Boolean,
+        halfTimeRoundingMode: HalfTimeRoundingMode,
+        enableCountdownSounds: Boolean
+    ): List<TimerTick> {
         require(config.isValid()) { "TimerConfig must have positive workout/rest/repeats (1..9999)." }
         require(prepSeconds >= 0) { "prepSeconds cannot be negative." }
 
@@ -26,7 +45,7 @@ object TimerSequence {
         if (prepSeconds > 0) {
             val nextLabel = "Workout (${config.workoutSeconds}s)"
             for (second in prepSeconds downTo 1) {
-                val events = if (second in 1..3) {
+                val events = if (enableCountdownSounds && second in 1..3) {
                     listOf(TimerSoundEvent.Countdown)
                 } else {
                     emptyList()
@@ -45,6 +64,11 @@ object TimerSequence {
             }
         }
 
+        val halfTime = when (halfTimeRoundingMode) {
+            HalfTimeRoundingMode.Down -> config.workoutSeconds / 2
+            HalfTimeRoundingMode.Up -> (config.workoutSeconds + 1) / 2
+        }
+
         repeat(config.repeats) { index ->
             val completedBefore = index
             val colorIndex = if (config.restSeconds > 0) 0 else index % 2
@@ -55,8 +79,10 @@ object TimerSequence {
 
             for (remaining in config.workoutSeconds downTo 1) {
                 val events = buildList {
-                    if (remaining == 10) add(TimerSoundEvent.TenSecondWarning)
-                    if (remaining in 1..3) add(TimerSoundEvent.Countdown)
+                    if (enableHalfWorkout && halfTime > 0 && remaining == halfTime) {
+                        add(TimerSoundEvent.HalfWorkoutWarning)
+                    }
+                    if (enableCountdownSounds && remaining in 1..3) add(TimerSoundEvent.Countdown)
                 }
                 ticks += TimerTick(
                     phase = TimerPhase.Workout,
@@ -97,7 +123,7 @@ object TimerSequence {
                 val futureRestAfterRest = ((config.repeats - completedAfter - 1).coerceAtLeast(0)) * config.restSeconds
                 val nextLabelFromRest = "Workout (${config.workoutSeconds}s)"
                 for (remaining in config.restSeconds downTo 1) {
-                    val events = if (remaining in 1..3) {
+                    val events = if (enableCountdownSounds && remaining in 1..3) {
                         listOf(TimerSoundEvent.Countdown)
                     } else {
                         emptyList()
@@ -130,7 +156,13 @@ object TimerSequence {
         return ticks
     }
 
-    private fun buildAdvanced(steps: List<TimerStep>, prepSeconds: Int): List<TimerTick> {
+    private fun buildAdvanced(
+        steps: List<TimerStep>,
+        prepSeconds: Int,
+        enableHalfWorkout: Boolean,
+        halfTimeRoundingMode: HalfTimeRoundingMode,
+        enableCountdownSounds: Boolean
+    ): List<TimerTick> {
         require(steps.isNotEmpty() && steps.all { it.isValid() }) {
             "Advanced plan must contain at least one valid step."
         }
@@ -148,7 +180,7 @@ object TimerSequence {
                 "${first.type.name} (${first.durationSeconds}s)${if (first.name.isNotBlank()) " • " + first.name else ""}"
             }
             for (second in prepSeconds downTo 1) {
-                val events = if (second in 1..3) {
+                val events = if (enableCountdownSounds && second in 1..3) {
                     listOf(TimerSoundEvent.Countdown)
                 } else {
                     emptyList()
@@ -188,11 +220,17 @@ object TimerSequence {
             when (step.type) {
                 StepType.Workout -> {
                     val colorIndex = currentWorkoutColorIndex % 2
+                    val halfTime = when (halfTimeRoundingMode) {
+                        HalfTimeRoundingMode.Down -> step.durationSeconds / 2
+                        HalfTimeRoundingMode.Up -> (step.durationSeconds + 1) / 2
+                    }
 
                     for (remaining in step.durationSeconds downTo 1) {
                         val events = buildList {
-                            if (remaining == 10) add(TimerSoundEvent.TenSecondWarning)
-                            if (remaining in 1..3) add(TimerSoundEvent.Countdown)
+                            if (enableHalfWorkout && halfTime > 0 && remaining == halfTime) {
+                                add(TimerSoundEvent.HalfWorkoutWarning)
+                            }
+                            if (enableCountdownSounds && remaining in 1..3) add(TimerSoundEvent.Countdown)
                         }
                         ticks += TimerTick(
                             phase = TimerPhase.Workout,
@@ -233,7 +271,7 @@ object TimerSequence {
                     currentWorkoutColorIndex = 0
 
                     for (remaining in step.durationSeconds downTo 1) {
-                        val events = if (remaining in 1..3) {
+                        val events = if (enableCountdownSounds && remaining in 1..3) {
                             listOf(TimerSoundEvent.Countdown)
                         } else {
                             emptyList()

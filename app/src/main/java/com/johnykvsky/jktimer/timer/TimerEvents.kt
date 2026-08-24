@@ -2,7 +2,7 @@ package com.johnykvsky.jktimer.timer
 
 sealed interface TimerSoundEvent {
     data object Countdown : TimerSoundEvent
-    data object TenSecondWarning : TimerSoundEvent
+    data object HalfWorkoutWarning : TimerSoundEvent
     data object WorkoutEnd : TimerSoundEvent
     data object TrainingFinish : TimerSoundEvent
 }

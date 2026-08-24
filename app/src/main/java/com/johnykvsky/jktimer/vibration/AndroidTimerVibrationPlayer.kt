@@ -19,7 +19,7 @@ class AndroidTimerVibrationPlayer(context: Context) : TimerVibrationPlayer {
         vibrate(durationMs = 60, amplitude = VibrationEffect.DEFAULT_AMPLITUDE)
     }
 
-    override fun tenSecondWarning() {
+    override fun halfWorkoutWarning() {
         vibratePattern(longArrayOf(0, 100, 100, 100))
     }
 

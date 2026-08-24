@@ -23,16 +23,113 @@ class TimerSequenceTest {
     }
 
     @Test
-    fun workoutTenSecondWarningHappensOnlyAtTen() {
+    fun workoutHalfWarningHappensAtHalfWorkoutRoundedDown() {
+        // 15s workout -> half is 7s (rounded down)
+        val ticks15 = TimerSequence.build(
+            TimerConfig(workoutSeconds = 15, restSeconds = 1, repeats = 1)
+        )
+        val warningSeconds15 = ticks15
+            .filter { TimerSoundEvent.HalfWorkoutWarning in it.soundEvents }
+            .map { it.remainingSeconds }
+        assertEquals(listOf(7), warningSeconds15)
+
+        // 10s workout -> half is 5s
+        val ticks10 = TimerSequence.build(
+            TimerConfig(workoutSeconds = 10, restSeconds = 1, repeats = 1)
+        )
+        val warningSeconds10 = ticks10
+            .filter { TimerSoundEvent.HalfWorkoutWarning in it.soundEvents }
+            .map { it.remainingSeconds }
+        assertEquals(listOf(5), warningSeconds10)
+
+        // 1s workout -> 1 / 2 = 0, no half warning
+        val ticks1 = TimerSequence.build(
+            TimerConfig(workoutSeconds = 1, restSeconds = 1, repeats = 1)
+        )
+        val warningSeconds1 = ticks1
+            .filter { TimerSoundEvent.HalfWorkoutWarning in it.soundEvents }
+            .map { it.remainingSeconds }
+        assertTrue(warningSeconds1.isEmpty())
+
+        // 2s workout -> half is 1s
+        val ticks2 = TimerSequence.build(
+            TimerConfig(workoutSeconds = 2, restSeconds = 1, repeats = 1)
+        )
+        val warningSeconds2 = ticks2
+            .filter { TimerSoundEvent.HalfWorkoutWarning in it.soundEvents }
+            .map { it.remainingSeconds }
+        assertEquals(listOf(1), warningSeconds2)
+    }
+
+    @Test
+    fun workoutHalfWarningCanBeDisabled() {
+        val ticksDisabled = TimerSequence.build(
+            TimerConfig(workoutSeconds = 15, restSeconds = 1, repeats = 1),
+            enableHalfWorkout = false
+        )
+        val warningSeconds = ticksDisabled
+            .filter { TimerSoundEvent.HalfWorkoutWarning in it.soundEvents }
+            .map { it.remainingSeconds }
+        assertTrue(warningSeconds.isEmpty())
+    }
+
+    @Test
+    fun workoutHalfWarningHappensAtHalfWorkoutRoundedUp() {
+        // 15s workout -> half is 8s (rounded up)
+        val ticks15 = TimerSequence.build(
+            TimerConfig(workoutSeconds = 15, restSeconds = 1, repeats = 1),
+            halfTimeRoundingMode = com.johnykvsky.jktimer.model.HalfTimeRoundingMode.Up
+        )
+        val warningSeconds15 = ticks15
+            .filter { TimerSoundEvent.HalfWorkoutWarning in it.soundEvents }
+            .map { it.remainingSeconds }
+        assertEquals(listOf(8), warningSeconds15)
+
+        // 10s workout -> half is 5s
+        val ticks10 = TimerSequence.build(
+            TimerConfig(workoutSeconds = 10, restSeconds = 1, repeats = 1),
+            halfTimeRoundingMode = com.johnykvsky.jktimer.model.HalfTimeRoundingMode.Up
+        )
+        val warningSeconds10 = ticks10
+            .filter { TimerSoundEvent.HalfWorkoutWarning in it.soundEvents }
+            .map { it.remainingSeconds }
+        assertEquals(listOf(5), warningSeconds10)
+
+        // 1s workout -> (1 + 1) / 2 = 1s, emits half warning at 1s
+        val ticks1 = TimerSequence.build(
+            TimerConfig(workoutSeconds = 1, restSeconds = 1, repeats = 1),
+            halfTimeRoundingMode = com.johnykvsky.jktimer.model.HalfTimeRoundingMode.Up
+        )
+        val warningSeconds1 = ticks1
+            .filter { TimerSoundEvent.HalfWorkoutWarning in it.soundEvents }
+            .map { it.remainingSeconds }
+        assertEquals(listOf(1), warningSeconds1)
+
+        // 3s workout -> (3 + 1) / 2 = 2s
+        val ticks3 = TimerSequence.build(
+            TimerConfig(workoutSeconds = 3, restSeconds = 1, repeats = 1),
+            halfTimeRoundingMode = com.johnykvsky.jktimer.model.HalfTimeRoundingMode.Up
+        )
+        val warningSeconds3 = ticks3
+            .filter { TimerSoundEvent.HalfWorkoutWarning in it.soundEvents }
+            .map { it.remainingSeconds }
+        assertEquals(listOf(2), warningSeconds3)
+    }
+
+    @Test
+    fun countdownSoundsCanBeDisabledInAllPhases() {
         val ticks = TimerSequence.build(
-            TimerConfig(workoutSeconds = 12, restSeconds = 1, repeats = 1)
+            TimerConfig(workoutSeconds = 10, restSeconds = 5, repeats = 2),
+            prepSeconds = 3,
+            enableCountdownSounds = false
         )
 
-        val warningSeconds = ticks
-            .filter { TimerSoundEvent.TenSecondWarning in it.soundEvents }
-            .map { it.remainingSeconds }
+        val countdownEvents = ticks.filter { TimerSoundEvent.Countdown in it.soundEvents }
+        assertTrue(countdownEvents.isEmpty())
 
-        assertEquals(listOf(10), warningSeconds)
+        // Ensure WorkoutEnd and TrainingFinish are still emitted as expected
+        val endEvents = ticks.filter { TimerSoundEvent.WorkoutEnd in it.soundEvents || TimerSoundEvent.TrainingFinish in it.soundEvents }
+        assertEquals(2, endEvents.size)
     }
 
     @Test
@@ -324,5 +421,25 @@ class TimerSequenceTest {
         // Final Complete tick
         assertEquals(0, ticks.last().totalRemainingSeconds)
         assertEquals(TimerPhase.Complete, ticks.last().phase)
+    }
+
+    @Test
+    fun advancedPlanHalfWorkoutWarningsCalculatedCorrectly() {
+        val steps = listOf(
+            com.johnykvsky.jktimer.model.TimerStep(type = com.johnykvsky.jktimer.model.StepType.Workout, durationSeconds = 15, name = "Sprint"), // half = 7
+            com.johnykvsky.jktimer.model.TimerStep(type = com.johnykvsky.jktimer.model.StepType.Rest, durationSeconds = 10, name = "Rest"),       // no half warning in rest
+            com.johnykvsky.jktimer.model.TimerStep(type = com.johnykvsky.jktimer.model.StepType.Workout, durationSeconds = 30, name = "Plank")   // half = 15
+        )
+        val plan = com.johnykvsky.jktimer.model.TrainingPlan.Advanced(steps)
+        val ticks = TimerSequence.build(plan, prepSeconds = 0)
+
+        val sprintHalfTick = ticks.filter { it.stepLabel == "Sprint" && TimerSoundEvent.HalfWorkoutWarning in it.soundEvents }
+        assertEquals(listOf(7), sprintHalfTick.map { it.remainingSeconds })
+
+        val restHalfTicks = ticks.filter { it.phase == TimerPhase.Rest && TimerSoundEvent.HalfWorkoutWarning in it.soundEvents }
+        assertTrue(restHalfTicks.isEmpty())
+
+        val plankHalfTick = ticks.filter { it.stepLabel == "Plank" && TimerSoundEvent.HalfWorkoutWarning in it.soundEvents }
+        assertEquals(listOf(15), plankHalfTick.map { it.remainingSeconds })
     }
 }

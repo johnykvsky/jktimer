@@ -107,6 +107,13 @@
     <string name="sound_effects_desc">Odtwarzaj dźwięki odliczania i zmian interwałów</string>
     <string name="beep_volume">Głośność dźwięków</string>
     <string name="test_sound">Testuj dźwięk</string>
+    <string name="countdown_sounds">Dźwięki odliczania (3, 2, 1)</string>
+    <string name="countdown_sounds_desc">Odtwarzaj odliczanie przed startem treningu i przed końcem interwałów</string>
+    <string name="half_workout_warning">Sygnał połowy ćwiczenia</string>
+    <string name="half_workout_warning_desc">Odtwarzaj dźwięk w połowie trwania każdego ćwiczenia</string>
+    <string name="half_time_rounding">Obliczanie połowy czasu</string>
+    <string name="rounding_down">Zaokrąglaj w dół</string>
+    <string name="rounding_up">Zaokrąglaj w górę</string>
     <string name="haptic_feedback">Wibracje</string>
     <string name="haptic_feedback_desc">Wibruj przy odliczaniu i zmianach interwałów</string>
     <string name="test_vibration">Testuj wibracje</string>

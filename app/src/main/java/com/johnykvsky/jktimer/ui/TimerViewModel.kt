@@ -105,6 +105,9 @@ class TimerViewModel @JvmOverloads constructor(
             prepSeconds = currentSettings.prepSeconds,
             soundEnabled = currentSettings.soundEnabled,
             hapticEnabled = currentSettings.hapticFeedbackEnabled,
+            halfWorkoutWarningEnabled = currentSettings.halfWorkoutWarningEnabled,
+            halfTimeRoundingMode = currentSettings.halfTimeRoundingMode,
+            countdownSoundsEnabled = currentSettings.countdownSoundsEnabled,
             scope = viewModelScope
         )
         _currentScreen.value = AppScreen.RunTimer
@@ -142,6 +145,8 @@ class TimerViewModel @JvmOverloads constructor(
     fun updateSettings(newSettings: AppSettings) {
         _settings.value = newSettings
         soundPlayer.setVolume(newSettings.soundVolume)
+        timerController.updateSoundEnabled(newSettings.soundEnabled)
+        timerController.updateHapticEnabled(newSettings.hapticFeedbackEnabled)
         settingsRepository.save(newSettings)
     }
 

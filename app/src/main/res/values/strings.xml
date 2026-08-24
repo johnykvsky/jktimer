@@ -106,6 +106,13 @@
     <string name="sound_effects_desc">Play countdown and interval beeps</string>
     <string name="beep_volume">Beep volume</string>
     <string name="test_sound">Test sound</string>
+    <string name="countdown_sounds">Countdown beeps (3, 2, 1)</string>
+    <string name="countdown_sounds_desc">Play countdown beeps before routine starts and before interval ends</string>
+    <string name="half_workout_warning">Half-workout signal</string>
+    <string name="half_workout_warning_desc">Play beep at the halfway point of each workout interval</string>
+    <string name="half_time_rounding">Half-time calculation</string>
+    <string name="rounding_down">Round down</string>
+    <string name="rounding_up">Round up</string>
     <string name="haptic_feedback">Haptic feedback</string>
     <string name="haptic_feedback_desc">Vibrate on countdown ticks and interval changes</string>
     <string name="test_vibration">Test vibration</string>

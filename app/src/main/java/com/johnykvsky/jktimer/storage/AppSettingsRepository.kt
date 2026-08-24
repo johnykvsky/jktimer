@@ -30,6 +30,12 @@ class AppSettingsRepository(context: Context) {
         val soundEnabled = preferences.getBoolean(KEY_SOUND_ENABLED, true)
         val soundVolume = preferences.getFloat(KEY_SOUND_VOLUME, 1.0f)
         val showTotalRemainingTime = preferences.getBoolean(KEY_SHOW_TOTAL_REMAINING_TIME, true)
+        val halfWorkoutWarningEnabled = preferences.getBoolean(KEY_HALF_WORKOUT_WARNING, true)
+        val halfTimeRoundingModeStr = preferences.getString(KEY_HALF_TIME_ROUNDING, null)
+        val halfTimeRoundingMode = halfTimeRoundingModeStr
+            ?.let { value -> com.johnykvsky.jktimer.model.HalfTimeRoundingMode.entries.firstOrNull { it.name == value } }
+            ?: com.johnykvsky.jktimer.model.HalfTimeRoundingMode.Down
+        val countdownSoundsEnabled = preferences.getBoolean(KEY_COUNTDOWN_SOUNDS, true)
 
         return AppSettings(
             themeMode = themeMode,
@@ -39,7 +45,10 @@ class AppSettingsRepository(context: Context) {
             timeIntervalSeconds = timeIntervalSeconds,
             soundEnabled = soundEnabled,
             soundVolume = soundVolume,
-            showTotalRemainingTime = showTotalRemainingTime
+            showTotalRemainingTime = showTotalRemainingTime,
+            halfWorkoutWarningEnabled = halfWorkoutWarningEnabled,
+            halfTimeRoundingMode = halfTimeRoundingMode,
+            countdownSoundsEnabled = countdownSoundsEnabled
         )
     }
 
@@ -53,6 +62,9 @@ class AppSettingsRepository(context: Context) {
             putBoolean(KEY_SOUND_ENABLED, settings.soundEnabled)
             putFloat(KEY_SOUND_VOLUME, settings.soundVolume)
             putBoolean(KEY_SHOW_TOTAL_REMAINING_TIME, settings.showTotalRemainingTime)
+            putBoolean(KEY_HALF_WORKOUT_WARNING, settings.halfWorkoutWarningEnabled)
+            putString(KEY_HALF_TIME_ROUNDING, settings.halfTimeRoundingMode.name)
+            putBoolean(KEY_COUNTDOWN_SOUNDS, settings.countdownSoundsEnabled)
         }
     }
 
@@ -66,5 +78,8 @@ class AppSettingsRepository(context: Context) {
         const val KEY_SOUND_ENABLED = "sound_enabled"
         const val KEY_SOUND_VOLUME = "sound_volume"
         const val KEY_SHOW_TOTAL_REMAINING_TIME = "show_total_remaining_time"
+        const val KEY_HALF_WORKOUT_WARNING = "half_workout_warning"
+        const val KEY_HALF_TIME_ROUNDING = "half_time_rounding"
+        const val KEY_COUNTDOWN_SOUNDS = "countdown_sounds"
     }
 }

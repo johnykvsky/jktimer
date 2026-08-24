@@ -25,7 +25,7 @@ class AndroidTimerSoundPlayer(context: Context) : TimerSoundPlayer {
     private val loadedSounds = ConcurrentHashMap<Int, Boolean>()
 
     private val countdownSoundId = soundPool.load(appContext, AppConfig.Sound.countdownSound, 1)
-    private val tenSecondWarningSoundId = soundPool.load(appContext, AppConfig.Sound.tenSecondWarningSound, 1)
+    private val halfWorkoutWarningSoundId = soundPool.load(appContext, AppConfig.Sound.halfWorkoutWarningSound, 1)
     private val workoutEndSoundId = soundPool.load(appContext, AppConfig.Sound.workoutEndSound, 1)
     private val trainingFinishSoundId = soundPool.load(appContext, AppConfig.Sound.trainingFinishSound, 1)
 
@@ -47,8 +47,8 @@ class AndroidTimerSoundPlayer(context: Context) : TimerSoundPlayer {
         play(countdownSoundId)
     }
 
-    override fun tenSecondWarningBeep() {
-        play(tenSecondWarningSoundId)
+    override fun halfWorkoutWarningBeep() {
+        play(halfWorkoutWarningSoundId)
     }
 
     override fun workoutEndBeep() {

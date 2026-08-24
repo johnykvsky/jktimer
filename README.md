@@ -28,10 +28,12 @@ Built with **100% Kotlin**, **Jetpack Compose**, and **Material 3**. Fully open-
 - **Landscape Mode:** Adaptive 2-column layout optimized for tablets and widescreen phones.
 
 ### 🔊 4. Audio & Haptic Alerts
-- Distinct sound cues for countdown ticks (`3, 2, 1`), 10-second warning, interval transitions, and workout completion.
+- Distinct sound cues for countdown ticks (`3, 2, 1`), half-workout alert, interval transitions, and workout completion.
 - In-app **beep volume slider** (10% to 100%) and sound test button.
+- Toggle for **countdown beeps** (`3, 2, 1` delay and interval ending countdowns).
+- Toggle for **half-workout signal alert** with configurable **half-time calculation** (Round Down vs Round Up).
 - Optional **haptic vibration feedback** with vibration test button.
-- Quick mute / unmute button in the top app bar.
+- **Quick mute / unmute button** in the top app bar to immediately silence all sounds live.
 
 ### 📱 5. Background Timer & Lock-Screen Support
 - Android Foreground Service with live notification updates keeps your workout active even when your phone is locked or you switch to music apps.
@@ -42,6 +44,8 @@ Built with **100% Kotlin**, **Jetpack Compose**, and **Material 3**. Fully open-
 - **Dark, Light, and System** theme modes.
 - Configurable **Preparation Delay** countdown (`0s`, `3s`, `5s`, `10s`, `15s`).
 - Configurable **Time Interval** step (`1s` to `99s`).
+- Toggle for **Countdown beeps** (`3, 2, 1`).
+- Toggle for **Half-workout signal alert** with choice of **Half-time calculation** (Round Down / Round Up).
 - Toggle for displaying total remaining workout duration.
 
 ### 🔒 7. 100% Private & Offline

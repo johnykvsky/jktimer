@@ -18,6 +18,9 @@ class AppSettingsTest {
         assertTrue(settings.soundEnabled)
         assertEquals(1.0f, settings.soundVolume, 0.001f)
         assertTrue(settings.showTotalRemainingTime)
+        assertTrue(settings.halfWorkoutWarningEnabled)
+        assertEquals(HalfTimeRoundingMode.Down, settings.halfTimeRoundingMode)
+        assertTrue(settings.countdownSoundsEnabled)
     }
 
     @Test
