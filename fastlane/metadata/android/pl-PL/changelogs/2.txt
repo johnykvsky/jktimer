@@ -1,0 +1,3 @@
+• Ulepszone formatowanie podsumowania treningu
+• Poprawki interfejsu i wydajności
+• Drobne poprawki błędów

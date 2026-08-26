@@ -1,0 +1,6 @@
+Pierwsze wydanie JK Timer:
+• Prosty i zaawansowany timer interwałowy (do 99 kroków)
+• Działanie w tle i na zablokowanym ekranie
+• Sygnały dźwiękowe i wibracyjne z regulacją głośności
+• Pełna obsługa języka polskiego i angielskiego
+• 100% offline, brak reklam i telemetrii
